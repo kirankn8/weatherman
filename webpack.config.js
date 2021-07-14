@@ -1,19 +1,29 @@
+require("dotenv").config();
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
-
 const webViewConfig = {
   mode: "development",
   target: "web", // default
   devtool: "source-map",
   devServer: {
     contentBase: "./dist",
+    port: process.env.WEBPACK_DEV_SERVER_PORT,
+    disableHostCheck: true,
+    hot: true,
+    watchContentBase: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
   },
   entry: "./src/index.js",
   plugins: [
     new HtmlWebpackPlugin({
       title: "WeatherMan",
       template: "template/index.html",
+      // inject: false, // do not inject bundle as we are handling via template
     }),
+    new MiniCssExtractPlugin(),
   ],
   output: {
     filename: "bundle.js",
@@ -24,7 +34,7 @@ const webViewConfig = {
     rules: [
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -47,9 +57,10 @@ const extensionConfig = {
   mode: "development",
   target: "node",
   devtool: "source-map",
-  devServer: {
-    contentBase: "./dist",
-  },
+  // devServer: {
+  //   contentBase: "./dist",
+  //   port: 8081,
+  // },
   entry: "./extension.js",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -58,7 +69,7 @@ const extensionConfig = {
       type: "commonjs2",
     },
     devtoolModuleFilenameTemplate: "../[resource-path]",
-    clean: true,
+    // clean: true,
   },
   externals: {
     vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/

@@ -4,8 +4,8 @@ const openWeatherApis = [
 
 const getWeatherApis = (latitude, longitude) => {
   return openWeatherApis.map((api) => {
-    api.replace("__latitude__", latitude);
-    api.replace("__longitude__", longitude);
+    api = api.replace("__latitude__", latitude);
+    api = api.replace("__longitude__", longitude);
     return api;
   });
 };

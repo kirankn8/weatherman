@@ -3,18 +3,58 @@
 const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
+const service = require("./src/services");
+const waiting = require("./src/config/constants");
 
 let weatherManStatusBarItem;
 
-/**
- * @param {vscode.ExtensionContext} context
- */
+const loadWeatherData = () => {
+  weatherManStatusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    0
+  );
+  weatherManStatusBarItem.command = "weatherman.forecast";
+  weatherManStatusBarItem.show();
+  weatherManStatusBarItem.tooltip = "Fetching forecast...";
+  weatherManStatusBarItem.text = `${waiting.waiting} WeatherMan`;
+
+  service.weather.getWeatherFromGeo(12.95396, 77.4908543).subscribe((res) => {
+    console.log("res: ", res);
+    const weatherStatus = res.dataseries[0].weather;
+    weatherManStatusBarItem.text = `${service.weather.generateWeatherUnicode(
+      weatherStatus
+    )} ${weatherStatus}`;
+    weatherManStatusBarItem.tooltip = "Click for weather forecst";
+  });
+};
+
+const getWebviewContent = (context, weatherManPanel) => {
+  let webviewScriptUri, webviewStyleUri;
+  const devPort = 8080;
+  if (process.env.NODE_ENV !== "development") {
+    webviewScriptUri = `http://localhost:${devPort}/bundle.js`;
+    webviewStyleUri = `http://localhost:${devPort}/main.css`;
+  } else {
+    webviewScriptUri = weatherManPanel.webview.asWebviewUri(
+      vscode.Uri.file(path.join(context.extensionPath, "dist", "bundle.js"))
+    );
+    webviewStyleUri = weatherManPanel.webview.asWebviewUri(
+      vscode.Uri.file(path.join(context.extensionPath, "dist", "main.css"))
+    );
+  }
+  const htmlTemplateOnDisk = vscode.Uri.file(
+    path.join(context.extensionPath, "dist", "index.html")
+  );
+  let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.path).toString();
+  htmlTemplate = htmlTemplate.replace("main.css", webviewStyleUri.toString());
+  htmlTemplate = htmlTemplate.replace("bundle.js", webviewScriptUri.toString());
+  return htmlTemplate;
+};
+
 function activate(context) {
-  // console.log(abc);
-  console.log("context.extensionPath: ", context.extensionPath);
   let disposable = vscode.commands.registerCommand(
     "weatherman.forecast",
-    function () {
+    () => {
       const weatherManPanel = vscode.window.createWebviewPanel(
         "weatherMan",
         "WeatherMan",
@@ -26,33 +66,14 @@ function activate(context) {
           ],
         }
       );
-
-      const webviewScriptOnDisk = vscode.Uri.file(
-        path.join(context.extensionPath, "dist", "bundle.js")
+      weatherManPanel.webview.html = getWebviewContent(
+        context,
+        weatherManPanel
       );
-      const webviewScriptUri =
-        weatherManPanel.webview.asWebviewUri(webviewScriptOnDisk);
-      const htmlTemplateOnDisk = vscode.Uri.file(
-        path.join(context.extensionPath, "dist", "index.html")
-      );
-      let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.path).toString();
-      htmlTemplate = htmlTemplate.replace(
-        "bundle.js",
-        webviewScriptUri.toString()
-      );
-      weatherManPanel.webview.html = htmlTemplate;
     }
   );
-
-  weatherManStatusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    0
-  );
+  loadWeatherData();
   context.subscriptions.push(disposable);
-  weatherManStatusBarItem.text = "Its rainy";
-  weatherManStatusBarItem.command = "weatherman.forecast";
-  weatherManStatusBarItem.backgroundColor = "green";
-  weatherManStatusBarItem.show();
 }
 
 function deactivate() {}

@@ -1,8 +1,14 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import "./index.css";
+import { App } from "./app";
 
-const App = () => {
-  return <h1 className="red">This is my React app!</h1>;
-};
-ReactDOM.render(<App />, document.getElementById("root"));
+const WeatherManApp = () => <App />;
+ReactDOM.render(<WeatherManApp />, document.getElementById("root"));
+
+// @ts-ignore
+if (module.hot) {
+  // @ts-ignore
+  module.hot.accept("./app", function () {
+    ReactDOM.render(<WeatherManApp />, document.getElementById("root"));
+  });
+}

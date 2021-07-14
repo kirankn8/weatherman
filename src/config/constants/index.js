@@ -1,5 +1,3 @@
-const config = {
-  a: 1,
-};
+const waiting = "\u23F3";
 
-export { config };
+export { waiting };
