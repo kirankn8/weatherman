@@ -31,7 +31,7 @@ const loadWeatherData = () => {
 const getWebviewContent = (context, weatherManPanel) => {
   let webviewScriptUri, webviewStyleUri;
   const devPort = 8080;
-  if (process.env.NODE_ENV !== "development") {
+  if (process.env.NODE_ENV === "development") {
     webviewScriptUri = `http://localhost:${devPort}/bundle.js`;
     webviewStyleUri = `http://localhost:${devPort}/main.css`;
   } else {
@@ -48,10 +48,12 @@ const getWebviewContent = (context, weatherManPanel) => {
   let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.path).toString();
   htmlTemplate = htmlTemplate.replace("main.css", webviewStyleUri.toString());
   htmlTemplate = htmlTemplate.replace("bundle.js", webviewScriptUri.toString());
+  console.log(htmlTemplate);
   return htmlTemplate;
 };
 
 function activate(context) {
+  console.log("hello");
   let disposable = vscode.commands.registerCommand(
     "weatherman.forecast",
     () => {

@@ -14,10 +14,10 @@ const unicodeWeatherIcons = {
 const getWeatherFromGeo = (latitude, longitude) => {
   const weatherApis = settings.weather.getWeatherApis(latitude, longitude);
   console.log(latitude, longitude, weatherApis);
-  return rxjsaxios.getMethod(weatherApis[0]);
+  return rxjsaxios.getMethod(weatherApis[0]).pipe();
 };
 
-const generateWeatherUnicode = (weatherWord = "") => {
+const generateWeatherUnicode = (weatherWord) => {
   weatherWord = weatherWord.toLowerCase();
   const weatherIcons = Object.keys(unicodeWeatherIcons);
   let weatherWordKey = unicodeWeatherIcons.default;

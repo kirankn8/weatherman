@@ -4,8 +4,8 @@ import "./index.css";
 const Report = () => {
   return (
     <div className="todays-report">
+      <div>Today&apos;s forecast</div>
       <div>30 C Outside rainy</div>
-      <div>Today&apos;s Forecast</div>
     </div>
   );
 };
