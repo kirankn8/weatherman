@@ -3,12 +3,12 @@
 const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
-const service = require("./src/services");
-const waiting = require("./src/config/constants");
+const { location, weather, ipaddress } = require("./src/services");
+const { tap, mergeMap, from, merge } = require("rxjs");
 
 let weatherManStatusBarItem;
 
-const loadWeatherData = () => {
+const loadWeatherData = (context) => {
   weatherManStatusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     0
@@ -16,44 +16,79 @@ const loadWeatherData = () => {
   weatherManStatusBarItem.command = "weatherman.forecast";
   weatherManStatusBarItem.show();
   weatherManStatusBarItem.tooltip = "Fetching forecast...";
-  weatherManStatusBarItem.text = `${waiting.waiting} WeatherMan`;
+  weatherManStatusBarItem.text = `WeatherMan`;
 
-  service.weather.getWeatherFromGeo(12.95396, 77.4908543).subscribe((res) => {
-    console.log("res: ", res);
-    const weatherStatus = res.dataseries[0].weather;
-    weatherManStatusBarItem.text = `${service.weather.generateWeatherUnicode(
-      weatherStatus
-    )} ${weatherStatus}`;
-    weatherManStatusBarItem.tooltip = "Click for weather forecst";
-  });
+  ipaddress
+    .getIpAddress()
+    .pipe(
+      mergeMap((ipaddr) => location.getGeoLocation(ipaddr)),
+      tap((geolocation) => {
+        const geo = {
+          geolocation: geolocation,
+          timestamp: new Date(),
+        };
+        from(context.globalState.update("location", geo));
+      }),
+      mergeMap(({ latitude, longitude }) =>
+        weather.getDailyWeatherForecast(latitude, longitude)
+      ),
+      tap((weather) => {
+        const dailyForecast = {
+          forecast: weather,
+          timestamp: new Date(),
+        };
+        from(context.globalState.update("dailyForecast", dailyForecast));
+      })
+    )
+    .subscribe(() => {
+      console.log("location: ", context.globalState.get("location"));
+      console.log("weather: ", context.globalState.get("weather"));
+    });
+
+  // weather.getWeatherFromGeo(12.95396, 77.4908543).subscribe((res) => {
+  //   console.log("res: ", res);
+  //   const weatherStatus = "res.dataseries[0].weather";
+  //   // weatherManStatusBarItem.text = `${service.weather.generateWeatherUnicode(
+  //   //   weatherStatus
+  //   // )} ${weatherStatus}`;
+  //   weatherManStatusBarItem.tooltip = "Click for weather forecst";
+  // });
 };
 
+const getWeeklyData = () => {};
+
 const getWebviewContent = (context, weatherManPanel) => {
-  let webviewScriptUri, webviewStyleUri;
+  let webviewScriptUri, webviewStyleUri, globalsScriptUri;
   const devPort = 8080;
+  const jsFile = "bundle.js";
+  const globalsFile = "globals.js";
+  const cssFile = "bundle.css";
   if (process.env.NODE_ENV === "development") {
-    webviewScriptUri = `http://localhost:${devPort}/bundle.js`;
-    webviewStyleUri = `http://localhost:${devPort}/main.css`;
+    webviewScriptUri = `http://localhost:${devPort}/${jsFile}`;
+    webviewStyleUri = `http://localhost:${devPort}/${cssFile}`;
+    globalsScriptUri = `http://localhost:${devPort}/${globalsFile}`;
   } else {
     webviewScriptUri = weatherManPanel.webview.asWebviewUri(
-      vscode.Uri.file(path.join(context.extensionPath, "dist", "bundle.js"))
+      vscode.Uri.file(path.join(context.extensionPath, "dist", jsFile))
+    );
+    globalsScriptUri = weatherManPanel.webview.asWebviewUri(
+      vscode.Uri.file(path.join(context.extensionPath, "dist", globalsFile))
     );
     webviewStyleUri = weatherManPanel.webview.asWebviewUri(
-      vscode.Uri.file(path.join(context.extensionPath, "dist", "main.css"))
+      vscode.Uri.file(path.join(context.extensionPath, "dist", cssFile))
     );
   }
   const htmlTemplateOnDisk = vscode.Uri.file(
     path.join(context.extensionPath, "dist", "index.html")
   );
   let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.path).toString();
-  htmlTemplate = htmlTemplate.replace("main.css", webviewStyleUri.toString());
-  htmlTemplate = htmlTemplate.replace("bundle.js", webviewScriptUri.toString());
-  console.log(htmlTemplate);
+  htmlTemplate = htmlTemplate.replace(cssFile, webviewStyleUri.toString());
+  htmlTemplate = htmlTemplate.replace(jsFile, webviewScriptUri.toString());
+  htmlTemplate = htmlTemplate.replace(globalsFile, globalsScriptUri.toString());
   return htmlTemplate;
 };
 
 function activate(context) {
-  console.log("hello");
   let disposable = vscode.commands.registerCommand(
     "weatherman.forecast",
     () => {
@@ -74,7 +109,9 @@ function activate(context) {
       );
     }
   );
-  loadWeatherData();
+  loadWeatherData(context);
+  context.globalState.update("abcd", 1).then();
+  console.log("abcd: ", context.globalState.get("abcd"));
   context.subscriptions.push(disposable);
 }
 

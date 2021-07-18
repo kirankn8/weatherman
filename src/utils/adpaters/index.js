@@ -1,3 +1,5 @@
 import locationAdapter from "./location.adapter";
+import weatherAdapter from "./weather.adapter";
+import ipaddressAdapter from "./ipaddress.adapter";
 
-export default { locationAdapter };
+export { locationAdapter, weatherAdapter, ipaddressAdapter };

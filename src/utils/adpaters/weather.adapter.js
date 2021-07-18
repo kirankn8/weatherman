@@ -113,11 +113,11 @@ const _7timerCivil = ({ init, dataseries = [] }) => {
       const timestamp = new Date(time);
       timestamp.setHours(timestamp.getHours() + timepoint);
       return {
-        timestamp: timestamp,
-        temperature: temp2m,
+        time: timestamp.toLocaleString(),
+        temperature: `${temp2m}°C`,
         weather: _7timerweatherMappings[weather] || weather,
         wind: `${wind10m.direction} ${getWindSpeed(wind10m.speed)}`,
-        precipitationType: getPrecipitationType(prec_type),
+        "precipitation Type": getPrecipitationType(prec_type),
         predictions: getPredictions({
           cloudcover,
           lifted_index,
@@ -156,8 +156,8 @@ const _7timerCivilLight = ({ dataseries }) => {
   return dataseries.map(({ date, weather, temp2m, wind10m_max }) => {
     const timestamp = new Date(getDate(date));
     return {
-      timestamp: timestamp,
-      temperature: `Max: ${temp2m.max}, Min: ${temp2m.min}`,
+      time: timestamp.toLocaleString(),
+      temperature: `Max: ${temp2m.max}°C, Min: ${temp2m.min}°C`,
       weather: _7timerweatherMappings[weather] || weather,
       wind: `${getWindSpeed(wind10m_max)}`,
       predictions: [_7timerweatherMappings[weather] || weather],
@@ -165,4 +165,7 @@ const _7timerCivilLight = ({ dataseries }) => {
   });
 };
 
-export { _7timerCivil, _7timerCivilLight };
+export default {
+  "7timer_Civil": _7timerCivil,
+  "7timer_CivilLight": _7timerCivilLight,
+};

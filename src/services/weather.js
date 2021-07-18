@@ -1,33 +1,59 @@
-import { settings } from "../config";
+import { map } from "rxjs";
 import { rxjsaxios } from "../utils";
+import { weatherAdapter } from "../utils/adpaters";
+import { weather } from "../config/constants";
+import { serviceSettings } from "../config/settings";
 
-const unicodeWeatherIcons = {
-  clear: "\u2600",
-  rain: "\uFE0F",
-  cloud: "\u2601",
-  snow: "\u2744",
-  thunder: "\u26C8",
-  fog: "\u1F32B",
-  default: "\u1F321",
+const getDailyWeatherForecast = (latitude, longitude) => {
+  const api = weather.getWeatherApi(
+    serviceSettings.weather.dailyForecastSource,
+    latitude,
+    longitude
+  );
+  return rxjsaxios
+    .getMethod(api)
+    .pipe(map(weatherAdapter[serviceSettings.weather.dailyForecastSource]));
 };
 
-const getWeatherFromGeo = (latitude, longitude) => {
-  const weatherApis = settings.weather.getWeatherApis(latitude, longitude);
-  console.log(latitude, longitude, weatherApis);
-  return rxjsaxios.getMethod(weatherApis[0]).pipe();
+const getWeeklyWeatherForecast = (latitude, longitude) => {
+  const api = weather.getWeatherApi(
+    serviceSettings.weather.weeklyForecastSource,
+    latitude,
+    longitude
+  );
+  return rxjsaxios
+    .getMethod(api)
+    .pipe(map(weatherAdapter[serviceSettings.weather.weeklyForecastSource]));
 };
 
-const generateWeatherUnicode = (weatherWord) => {
+const generateWeatherUnicode = (weatherWord = "") => {
   weatherWord = weatherWord.toLowerCase();
-  const weatherIcons = Object.keys(unicodeWeatherIcons);
-  let weatherWordKey = unicodeWeatherIcons.default;
+  weatherWord = weatherWord.replace(/\s/g, "");
+  const weatherIcons = Object.keys(weather.weatherEmojis);
+  let weatherWordKey = weather.weatherEmojis.default.unicode;
   for (const weather of weatherIcons) {
     if (weatherWord.indexOf(weather) != -1) {
       weatherWordKey = weather;
       break;
     }
   }
-  return unicodeWeatherIcons[weatherWordKey];
+  return weather.weatherEmojis[weatherWordKey].unicode;
 };
 
-export default { getWeatherFromGeo, generateWeatherUnicode };
+const getNext4WeatherUpdates = (time, weatherForecasts) => {
+  // TODO: logic need to be reviewed based on storage of forecast in vscode
+  const currentTime = new Date(time);
+  let i = 0;
+  for (; i < weatherForecasts.length; i++) {
+    const time = new Date(weatherForecasts[i].time);
+    if (time > currentTime) break;
+  }
+  return weatherForecasts.slice(i, i + 4);
+};
+
+export default {
+  getDailyWeatherForecast,
+  getWeeklyWeatherForecast,
+  generateWeatherUnicode,
+  getNext4WeatherUpdates,
+};

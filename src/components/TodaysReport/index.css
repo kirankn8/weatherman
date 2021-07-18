@@ -1,0 +1,50 @@
+.todays-report-container {
+  margin-top: 2em;
+  width: 60%;
+}
+
+.todays-report-heading {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 3em;
+}
+
+.todays-report-body {
+  font-size: 1.5em;
+  margin-left: 5px;
+}
+
+.weather-properties {
+  margin-bottom: 10px;
+}
+
+.weather-properties-info {
+  margin-left: 10px;
+}
+
+.emoji {
+  margin-left: 0.5em;
+  font-size: 1.5em;
+}
+
+.clear {
+  color: orange;
+}
+
+.rain {
+  color: rgb(28, 115, 230);
+}
+
+.snow {
+  color: rgb(0, 183, 255);
+}
+
+.thunder {
+  color: rgb(182, 182, 35);
+  --animate-duration: 4s;
+}
+
+.cloudy,
+.partly_cloudy {
+  color: rgb(201, 201, 201);
+}

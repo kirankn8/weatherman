@@ -1,3 +1,5 @@
-const waiting = "\u23F3";
+import ipaddress from "./ipaddress";
+import location from "./location";
+import weather from "./weather";
 
-export { waiting };
+export { ipaddress, location, weather };

@@ -1,9 +1,15 @@
+.qna-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 3em;
+}
+
 .question,
 .answer {
-  font-size: 6em;
+  font-size: 2em;
   display: inline-block;
 }
 
 .question {
-  margin-right: 0.4em;
+  margin-bottom: 0.5em;
 }

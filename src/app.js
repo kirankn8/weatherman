@@ -1,19 +1,28 @@
-import React from "react";
-import { Heading } from "./components/Heading";
+import React, { useEffect } from "react";
 import { QnA } from "./components/QnA";
-import { Report } from "./components/Report";
-import { Forecast } from "./components/Forecast";
+import { TodaysReport } from "./components/TodaysReport";
+import { DailyForecast } from "./components/DailyForecast";
+import { WeeklyForecast } from "./components/WeeklyForecast";
 import "./app.css";
+import { weather } from "./services";
+
+const vscode = window["vscode"];
 
 const App = () => {
+  useEffect(() => {
+    weather
+      .getWeatherFromGeo(12.95396, 77.4908543)
+      .subscribe((res) => console.log(res));
+  }, []);
   return (
     <div>
-      <Heading />
+      {/* <Heading /> */}
       <div className="banner">
+        <TodaysReport />
         <QnA />
-        <Report />
       </div>
-      <Forecast />
+      <DailyForecast />
+      <WeeklyForecast />
     </div>
   );
 };

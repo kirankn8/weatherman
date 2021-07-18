@@ -1,0 +1,28 @@
+.forecast-container {
+  margin-top: 3em;
+}
+
+.forecast-heading {
+  font-size: 2em;
+  margin-bottom: 0.5em;
+}
+
+.forecast-body {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.time-forecast-container {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 10px 0;
+  margin-right: 2em;
+}
+
+.time-forecast-heading {
+  margin-bottom: 1em;
+}
+
+.time-forecast-body div {
+  width: 150px;
+}

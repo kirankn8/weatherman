@@ -1,7 +1,11 @@
 require("dotenv").config();
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const Dotenv = require("dotenv-webpack");
+const ResourceHintWebpackPlugin = require("resource-hints-webpack-plugin");
+const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
 const path = require("path");
+
 const webViewConfig = {
   mode: "development",
   target: "web", // default
@@ -16,17 +20,35 @@ const webViewConfig = {
       "Access-Control-Allow-Origin": "*",
     },
   },
-  entry: "./src/index.js",
+  entry: { bundle: "./src/index.js", globals: "./template/globals.js" },
   plugins: [
+    new Dotenv(),
     new HtmlWebpackPlugin({
       title: "WeatherMan",
       template: "template/index.html",
-      // inject: false, // do not inject bundle as we are handling via template
+      chunks: ["globals", "bundle"],
+      chunksSortMode: "manual",
     }),
+    // new CspHtmlWebpackPlugin({
+    //   // TODO: Need to fix the below config for prod
+    //   "script-src": [
+    //     // "https://*.vscode-webview.net",
+    //     "http://localhost:8080",
+    //     "ws://localhost:8080",
+    //     "https://*",
+    //   ],
+    //   "style-src": [
+    //     // "https://*.vscode-webview.net",
+    //     "http://localhost:8080",
+    //     "ws://localhost:8080",
+    //     "https://*",
+    //   ],
+    // }),
+    // new ResourceHintWebpackPlugin(),
     new MiniCssExtractPlugin(),
   ],
   output: {
-    filename: "bundle.js",
+    filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
     // clean: true,
   },
