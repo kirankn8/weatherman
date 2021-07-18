@@ -4,9 +4,11 @@ const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
 const { location, weather, ipaddress } = require("./src/services");
-const { tap, mergeMap, from, merge } = require("rxjs");
+const { tap, mergeMap, from, Subject, share, forkJoin } = require("rxjs");
 
 let weatherManStatusBarItem;
+
+const geographySubject = new Subject();
 
 const loadWeatherData = (context) => {
   weatherManStatusBarItem = vscode.window.createStatusBarItem(
@@ -18,17 +20,20 @@ const loadWeatherData = (context) => {
   weatherManStatusBarItem.tooltip = "Fetching forecast...";
   weatherManStatusBarItem.text = `WeatherMan`;
 
-  ipaddress
-    .getIpAddress()
+  const geography = ipaddress.getIpAddress().pipe(
+    mergeMap((ipaddr) => location.getGeoLocation(ipaddr)),
+    tap((geolocation) => {
+      const geo = {
+        geolocation: geolocation,
+        timestamp: new Date(),
+      };
+      from(context.globalState.update("location", geo));
+    }),
+    share({ connector: () => geographySubject })
+  );
+
+  geography
     .pipe(
-      mergeMap((ipaddr) => location.getGeoLocation(ipaddr)),
-      tap((geolocation) => {
-        const geo = {
-          geolocation: geolocation,
-          timestamp: new Date(),
-        };
-        from(context.globalState.update("location", geo));
-      }),
       mergeMap(({ latitude, longitude }) =>
         weather.getDailyWeatherForecast(latitude, longitude)
       ),
@@ -42,20 +47,62 @@ const loadWeatherData = (context) => {
     )
     .subscribe(() => {
       console.log("location: ", context.globalState.get("location"));
-      console.log("weather: ", context.globalState.get("weather"));
+      console.log("dailyForecast: ", context.globalState.get("dailyForecast"));
     });
 
-  // weather.getWeatherFromGeo(12.95396, 77.4908543).subscribe((res) => {
-  //   console.log("res: ", res);
-  //   const weatherStatus = "res.dataseries[0].weather";
-  //   // weatherManStatusBarItem.text = `${service.weather.generateWeatherUnicode(
-  //   //   weatherStatus
-  //   // )} ${weatherStatus}`;
-  //   weatherManStatusBarItem.tooltip = "Click for weather forecst";
-  // });
-};
+  geography
+    .pipe(
+      mergeMap(({ latitude, longitude }) =>
+        weather.getWeeklyWeatherForecast(latitude, longitude)
+      ),
+      tap((weather) => {
+        const weeklyForecast = {
+          forecast: weather,
+          timestamp: new Date(),
+        };
+        from(context.globalState.update("weeklyForecast", weeklyForecast));
+      })
+    )
+    .subscribe(() => {
+      const weeklyForecast = context.globalState.get("weeklyForecast");
+      console.log(weeklyForecast);
+      const weatherStatus = weeklyForecast.forecast[0].weather;
+      weatherManStatusBarItem.text = `${weather.generateWeatherUnicode(
+        weatherStatus
+      )} ${weatherStatus}`;
+      weatherManStatusBarItem.tooltip = "Click for weather forecst";
+    });
 
-const getWeeklyData = () => {};
+  const daily = geography.pipe(
+    mergeMap(({ latitude, longitude }) =>
+      weather.getDailyWeatherForecast(latitude, longitude)
+    ),
+    tap((weather) => {
+      const dailyForecast = {
+        forecast: weather,
+        timestamp: new Date(),
+      };
+      from(context.globalState.update("dailyForecast", dailyForecast));
+    })
+  );
+  const weekly = geography.pipe(
+    mergeMap(({ latitude, longitude }) =>
+      weather.getWeeklyWeatherForecast(latitude, longitude)
+    ),
+    tap((weather) => {
+      const weeklyForecast = {
+        forecast: weather,
+        timestamp: new Date(),
+      };
+      from(context.globalState.update("weeklyForecast", weeklyForecast));
+    })
+  );
+
+  forkJoin({ daily, weekly }).subscribe(({ daily, weekly }) => {
+    console.log("daily", daily);
+    console.log("weekly", weekly);
+  });
+};
 
 const getWebviewContent = (context, weatherManPanel) => {
   let webviewScriptUri, webviewStyleUri, globalsScriptUri;

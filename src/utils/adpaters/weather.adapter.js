@@ -33,6 +33,7 @@ const _7timerweatherMappings = {
 };
 
 const _7timerCivil = ({ init, dataseries = [] }) => {
+  init = init.toString();
   const year = init.slice(0, 4);
   const month = init.slice(4, 6);
   const date = init.slice(6, 8);
@@ -132,11 +133,11 @@ const _7timerCivil = ({ init, dataseries = [] }) => {
 
 const _7timerCivilLight = ({ dataseries }) => {
   const getDate = (time) => {
+    time = time.toString();
     const year = time.slice(0, 4);
     const month = time.slice(4, 6);
     const date = time.slice(6, 8);
-    const hour = time.slice(8, 10);
-    return new Date(year, month - 1, date, hour);
+    return new Date(year, month - 1, date);
   };
 
   const getWindSpeed = (windSpeed) => {
@@ -154,13 +155,12 @@ const _7timerCivilLight = ({ dataseries }) => {
   };
 
   return dataseries.map(({ date, weather, temp2m, wind10m_max }) => {
-    const timestamp = new Date(getDate(date));
+    const timestamp = getDate(date);
     return {
-      time: timestamp.toLocaleString(),
+      date: timestamp.toLocaleString(),
       temperature: `Max: ${temp2m.max}°C, Min: ${temp2m.min}°C`,
       weather: _7timerweatherMappings[weather] || weather,
       wind: `${getWindSpeed(wind10m_max)}`,
-      predictions: [_7timerweatherMappings[weather] || weather],
     };
   });
 };
