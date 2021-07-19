@@ -1,37 +1,72 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { stringutils } from "../../utils";
-import "./index.css";
+import { weather } from "../../services";
 import "animate.css";
+import "./index.css";
 
-const TodaysReport = () => {
-  const weather = {
-    time: "16/07/2021, 09:00:00",
-    temperature: "25°C",
-    weather: "Light Rain Day",
-    wind: "W 3.4-8.0m/s (moderate)",
-    "precipitation type": "rain",
-    predictions: [
-      "Very Cloudy",
-      "Light rain or showers",
-      "Light or occasional snow",
-    ],
-  };
-  const emoji = "rain";
+const TodaysReport = ({ weatherForecasts, geolocation }) => {
+  const forecast = weather.getCurrentWeatherUpdate(weatherForecasts);
+  const emoji = forecast
+    ? weather.generateWeatherEmoji(forecast.weather)
+    : weather.generateWeatherEmoji("default");
 
   const renderWeatherinfo = () => {
     return (
-      <div className={`${emoji}`} key={emoji}>
+      <div className={`${emoji.name}`}>
         <div className="today-forecast">
-          {Object.keys(weather).map((key) => (
-            <div className="weather-properties" key={key}>
-              <span className="weather-properties-title">
-                {stringutils.toTitleCase(key)}:
-              </span>
-              <span className="weather-properties-info">
-                {stringutils.arrayToString(weather[key])}
-              </span>
-            </div>
-          ))}
+          <div className="weather-properties">
+            <span className="weather-properties-title">Time:</span>
+            <span className="weather-properties-info">
+              {new Date().toString()}
+            </span>
+          </div>
+
+          <div className="weather-properties">
+            <span className="weather-properties-title">
+              {weather.generateWeatherEmoji("location").unicode}
+            </span>
+            <span className="weather-properties-info">
+              {`${geolocation.city}, ${geolocation.country}`}
+            </span>
+          </div>
+
+          <div className="weather-properties">
+            <span className="weather-properties-title">Temperature:</span>
+            <span className="weather-properties-info">
+              {stringutils.arrayToString(forecast.temperature)}
+            </span>
+          </div>
+
+          <div className="weather-properties">
+            <span className="weather-properties-title">Weather:</span>
+            <span className="weather-properties-info">
+              {stringutils.arrayToString(forecast.weather)}
+            </span>
+          </div>
+
+          <div className="weather-properties">
+            <span className="weather-properties-title">Wind:</span>
+            <span className="weather-properties-info">
+              {stringutils.arrayToString(forecast.wind)}
+            </span>
+          </div>
+
+          <div className="weather-properties">
+            <span className="weather-properties-title">
+              Precipitation Type:
+            </span>
+            <span className="weather-properties-info">
+              {stringutils.arrayToString(forecast["precipitation Type"])}
+            </span>
+          </div>
+
+          <div className="weather-properties">
+            <span className="weather-properties-title">Predictions:</span>
+            <span className="weather-properties-info">
+              {stringutils.arrayToString(forecast.predictions)}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -42,16 +77,21 @@ const TodaysReport = () => {
       <div className="todays-report-heading">
         <div>Today&apos;s Weather</div>
         <div className={`${emoji} todays-report`}>
-          {/* <div
-            className={`emoji animate__animated animate__infinite animate__slower	 ${weatherEmojis[emoji].animate}`}
+          <div
+            className={`emoji animate__animated animate__infinite animate__slower	${emoji.animate}`}
           >
-            {weatherEmojis[emoji].unicode}
-          </div> */}
+            {emoji.unicode}
+          </div>
         </div>
       </div>
       <div className="todays-report-body">{renderWeatherinfo()}</div>
     </div>
   );
+};
+
+TodaysReport.propTypes = {
+  weatherForecasts: PropTypes.array.isRequired,
+  geolocation: PropTypes.object.isRequired,
 };
 
 export { TodaysReport };

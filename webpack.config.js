@@ -56,7 +56,18 @@ const webViewConfig = {
     rules: [
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            // options: {
+            //   importLoaders: 1,
+            //   modules: {
+            //     localIdentName: "[name]__[local]__[hash:base64:5]",
+            //   },
+            // },
+          },
+        ],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,

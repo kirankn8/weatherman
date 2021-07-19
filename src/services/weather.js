@@ -1,4 +1,4 @@
-import { map } from "rxjs";
+import { map, min } from "rxjs";
 import { rxjsaxios } from "../utils";
 import { weatherAdapter } from "../utils/adpaters";
 import { weather } from "../config/constants";
@@ -26,34 +26,81 @@ const getWeeklyWeatherForecast = (latitude, longitude) => {
     .pipe(map(weatherAdapter[serviceSettings.weather.weeklyForecastSource]));
 };
 
-const generateWeatherUnicode = (weatherWord = "") => {
+const generateWeatherEmoji = (weatherWord = "") => {
   weatherWord = weatherWord.toLowerCase();
   weatherWord = weatherWord.replace(/\s/g, "");
+  if (weather.weatherEmojis[weatherWord]) {
+    return weather.weatherEmojis[weatherWord];
+  }
   const weatherIcons = Object.keys(weather.weatherEmojis);
-  let weatherWordKey = weather.weatherEmojis.default.unicode;
+  let weatherWordKey = "default";
   for (const weather of weatherIcons) {
     if (weatherWord.indexOf(weather) != -1) {
       weatherWordKey = weather;
       break;
     }
   }
-  return weather.weatherEmojis[weatherWordKey].unicode;
+  return weather.weatherEmojis[weatherWordKey];
 };
 
-const getNext4WeatherUpdates = (time, weatherForecasts) => {
+const getNextNWeatherUpdates = (weatherForecasts, n) => {
   // TODO: logic need to be reviewed based on storage of forecast in vscode
-  const currentTime = new Date(time);
+  const currentTime = new Date();
   let i = 0;
   for (; i < weatherForecasts.length; i++) {
     const time = new Date(weatherForecasts[i].time);
     if (time > currentTime) break;
   }
-  return weatherForecasts.slice(i, i + 4);
+  return weatherForecasts.slice(i, i + n);
+};
+
+const getCurrentWeatherUpdate = (weatherForecasts) => {
+  const currentTime = new Date();
+  let i = 0;
+  for (; i < weatherForecasts.length; i++) {
+    const time = new Date(weatherForecasts[i].time);
+    if (time > currentTime) break;
+  }
+  return i == 0 ? weatherForecasts[0] : weatherForecasts[i - 1];
+};
+
+const isUmbrellaRequired = (weatherForecasts) => {
+  const currentTime = new Date();
+  let i = 0;
+  for (; i < weatherForecasts.length; i++) {
+    const time = new Date(weatherForecasts[i].time);
+    if (time > currentTime) break;
+  }
+
+  let isClearWeather = true;
+  for (let j = i; j < Math.min(weatherForecasts.length, 12); j++) {
+    const { name: weatherName } = generateWeatherEmoji(
+      weatherForecasts[j].weather
+    );
+    if (["rain", "thunder", "snow"].includes(weatherName)) {
+      return weather.getQnA(
+        weatherName,
+        weatherForecasts[j].weather,
+        weatherForecasts[j].time
+      );
+    }
+    if (weatherName !== "clear") {
+      isClearWeather = false;
+    }
+  }
+
+  return weather.getQnA(
+    isClearWeather ? "clear" : "default",
+    weatherForecasts[i].weather,
+    weatherForecasts[i].time
+  );
 };
 
 export default {
   getDailyWeatherForecast,
   getWeeklyWeatherForecast,
-  generateWeatherUnicode,
-  getNext4WeatherUpdates,
+  generateWeatherEmoji,
+  getNextNWeatherUpdates,
+  getCurrentWeatherUpdate,
+  isUmbrellaRequired,
 };

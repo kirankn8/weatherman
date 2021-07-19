@@ -9,17 +9,37 @@ const { tap, mergeMap, from, Subject, share, forkJoin } = require("rxjs");
 let weatherManStatusBarItem;
 
 const geographySubject = new Subject();
+let geoLocation, weeklyForecast, dailyForecast;
 
-const loadWeatherData = (context) => {
+const activateWeatherMan = () => {
   weatherManStatusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     0
   );
-  weatherManStatusBarItem.command = "weatherman.forecast";
+  const waitingEmoji = weather.generateWeatherEmoji("waiting").unicode;
   weatherManStatusBarItem.show();
   weatherManStatusBarItem.tooltip = "Fetching forecast...";
-  weatherManStatusBarItem.text = `WeatherMan`;
+  weatherManStatusBarItem.text = `${waitingEmoji} WeatherMan`;
+};
 
+const loadData = (context) => {
+  geoLocation = context.globalState.get("location");
+  const today = +new Date();
+  if (geoLocation && today - +new Date(geoLocation.timestamp) <= 6) {
+    weeklyForecast = context.globalState.get("weeklyForecast");
+    dailyForecast = context.globalState.get("dailyForecast");
+    console.log({
+      weeklyForecast,
+      dailyForecast,
+      geoLocation,
+    });
+    weatherManStatusBarItem.command = "weatherman.forecast";
+  } else {
+    fetchData(context);
+  }
+};
+
+const fetchData = (context) => {
   const geography = ipaddress.getIpAddress().pipe(
     mergeMap((ipaddr) => location.getGeoLocation(ipaddr)),
     tap((geolocation) => {
@@ -31,47 +51,6 @@ const loadWeatherData = (context) => {
     }),
     share({ connector: () => geographySubject })
   );
-
-  geography
-    .pipe(
-      mergeMap(({ latitude, longitude }) =>
-        weather.getDailyWeatherForecast(latitude, longitude)
-      ),
-      tap((weather) => {
-        const dailyForecast = {
-          forecast: weather,
-          timestamp: new Date(),
-        };
-        from(context.globalState.update("dailyForecast", dailyForecast));
-      })
-    )
-    .subscribe(() => {
-      console.log("location: ", context.globalState.get("location"));
-      console.log("dailyForecast: ", context.globalState.get("dailyForecast"));
-    });
-
-  geography
-    .pipe(
-      mergeMap(({ latitude, longitude }) =>
-        weather.getWeeklyWeatherForecast(latitude, longitude)
-      ),
-      tap((weather) => {
-        const weeklyForecast = {
-          forecast: weather,
-          timestamp: new Date(),
-        };
-        from(context.globalState.update("weeklyForecast", weeklyForecast));
-      })
-    )
-    .subscribe(() => {
-      const weeklyForecast = context.globalState.get("weeklyForecast");
-      console.log(weeklyForecast);
-      const weatherStatus = weeklyForecast.forecast[0].weather;
-      weatherManStatusBarItem.text = `${weather.generateWeatherUnicode(
-        weatherStatus
-      )} ${weatherStatus}`;
-      weatherManStatusBarItem.tooltip = "Click for weather forecst";
-    });
 
   const daily = geography.pipe(
     mergeMap(({ latitude, longitude }) =>
@@ -98,9 +77,15 @@ const loadWeatherData = (context) => {
     })
   );
 
-  forkJoin({ daily, weekly }).subscribe(({ daily, weekly }) => {
-    console.log("daily", daily);
-    console.log("weekly", weekly);
+  forkJoin({ daily, weekly }).subscribe(() => {
+    weeklyForecast = context.globalState.get("weeklyForecast");
+    dailyForecast = context.globalState.get("dailyForecast");
+    geoLocation = context.globalState.get("location");
+    const weatherStatus = weeklyForecast.forecast[0].weather;
+    const emoji = weather.generateWeatherEmoji(weatherStatus).unicode;
+    weatherManStatusBarItem.text = `${emoji} ${weatherStatus}`;
+    weatherManStatusBarItem.command = "weatherman.forecast";
+    weatherManStatusBarItem.tooltip = "Click to see weather forecast";
   });
 };
 
@@ -139,6 +124,7 @@ function activate(context) {
   let disposable = vscode.commands.registerCommand(
     "weatherman.forecast",
     () => {
+      console.log("command activated");
       const weatherManPanel = vscode.window.createWebviewPanel(
         "weatherMan",
         "WeatherMan",
@@ -154,12 +140,16 @@ function activate(context) {
         context,
         weatherManPanel
       );
+      weatherManPanel.webview.postMessage({
+        weeklyForecast,
+        dailyForecast,
+        geoLocation,
+      });
     }
   );
-  loadWeatherData(context);
-  context.globalState.update("abcd", 1).then();
-  console.log("abcd: ", context.globalState.get("abcd"));
+  loadData(context);
   context.subscriptions.push(disposable);
+  activateWeatherMan();
 }
 
 function deactivate() {}

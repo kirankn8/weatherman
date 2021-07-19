@@ -157,7 +157,7 @@ const _7timerCivilLight = ({ dataseries }) => {
   return dataseries.map(({ date, weather, temp2m, wind10m_max }) => {
     const timestamp = getDate(date);
     return {
-      date: timestamp.toLocaleString(),
+      time: timestamp.toLocaleString(),
       temperature: `Max: ${temp2m.max}°C, Min: ${temp2m.min}°C`,
       weather: _7timerweatherMappings[weather] || weather,
       wind: `${getWindSpeed(wind10m_max)}`,

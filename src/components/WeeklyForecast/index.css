@@ -15,8 +15,19 @@
 .time-forecast-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   padding: 10px 10px 10px 0;
   margin-right: 2em;
+  margin-bottom: 2em;
+  border: 2px solid white;
+}
+
+.vscode-dark .time-forecast-container {
+  border: 2px solid white;
+}
+
+.vscode-light .time-forecast-container {
+  border: 2px solid black;
 }
 
 .time-forecast-heading {
@@ -25,4 +36,9 @@
 
 .time-forecast-body div {
   width: 150px;
+  margin-bottom: 10px;
+}
+
+.time-forecast-detail-emoji {
+  margin-right: 5px;
 }

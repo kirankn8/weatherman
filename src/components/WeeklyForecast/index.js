@@ -1,66 +1,34 @@
 import React from "react";
+import PropTypes from "prop-types";
+import { weather } from "../../services";
+import { stringutils } from "../../utils";
 import "./index.css";
 
-const WeeklyForecast = () => {
-  const forecasts = [
-    {
-      time: "16/07/2021, 09:00:00",
-      temperature: "25°C",
-      weather: "Light Rain Day",
-      wind: "W 3.4-8.0m/s (moderate)",
-      "precipitation type": "rain",
-      predictions: [
-        "Very Cloudy",
-        "Light rain or showers",
-        "Light or occasional snow",
-      ],
-    },
-    {
-      time: "16/07/2021, 09:00:00",
-      temperature: "25°C",
-      weather: "Light Rain Day",
-      wind: "W 3.4-8.0m/s (moderate)",
-      "precipitation type": "rain",
-      predictions: [
-        "Very Cloudy",
-        "Light rain or showers",
-        "Light or occasional snow",
-      ],
-    },
-    {
-      time: "16/07/2021, 09:00:00",
-      temperature: "25°C",
-      weather: "Light Rain Day",
-      wind: "W 3.4-8.0m/s (moderate)",
-      "precipitation type": "rain",
-      predictions: [
-        "Very Cloudy",
-        "Light rain or showers",
-        "Light or occasional snow",
-      ],
-    },
-    {
-      time: "16/07/2021, 09:00:00",
-      temperature: "25°C",
-      weather: "Light Rain Day",
-      wind: "W 3.4-8.0m/s (moderate)",
-      "precipitation type": "rain",
-      predictions: [
-        "Very Cloudy",
-        "Light rain or showers",
-        "Light or occasional snow",
-      ],
-    },
-  ];
+const WeeklyForecast = ({ weeklyForecast }) => {
+  const getEmoji = (word) => weather.generateWeatherEmoji(word).unicode;
+  const formatTime = (time) => new Date(time).toDateString();
 
   const renderTimeForecast = (forecast) => {
     return (
-      <div className="time-forecast-container">
-        <div className="time-forecast-heading">{forecast.time}</div>
+      <div className="time-forecast-container" key={`weekly-${forecast.time}`}>
+        <div className="time-forecast-heading">{formatTime(forecast.time)}</div>
         <div className="time-forecast-body">
-          <div>[emoji]{forecast.weather}</div>
-          <div>[emoji]{forecast.temperature}</div>
-          <div>[emoji]{forecast.wind}</div>
+          <div>
+            <span className="time-forecast-detail-emoji">
+              {getEmoji(forecast.weather)}
+            </span>
+            {stringutils.toTitleCase(forecast.weather)}
+          </div>
+          <div>
+            <span className="time-forecast-detail-emoji">
+              {getEmoji("temperature")}
+            </span>
+            {forecast.temperature}
+          </div>
+          <div>
+            <span className="time-forecast-detail-emoji">Wind:</span>
+            {forecast.wind}
+          </div>
         </div>
       </div>
     );
@@ -70,10 +38,16 @@ const WeeklyForecast = () => {
     <div className="forecast-container">
       <div className="forecast-heading">Weekly Forecast</div>
       <div className="forecast-body">
-        {forecasts.map((forecast) => renderTimeForecast(forecast))}
+        {weeklyForecast.map((forecast) => renderTimeForecast(forecast))}
       </div>
     </div>
   );
 };
+
+WeeklyForecast.propTypes = {
+  weeklyForecast: PropTypes.array.isRequired,
+};
+
+WeeklyForecast.defaultProps = {};
 
 export { WeeklyForecast };
