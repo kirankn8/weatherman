@@ -8,6 +8,8 @@ const { tap, mergeMap, from, Subject, share, forkJoin } = require("rxjs");
 
 let weatherManStatusBarItem;
 
+console.log(process.env);
+
 const geographySubject = new Subject();
 let geoLocation, weeklyForecast, dailyForecast;
 
@@ -28,11 +30,6 @@ const loadData = (context) => {
   if (geoLocation && today - +new Date(geoLocation.timestamp) <= 6) {
     weeklyForecast = context.globalState.get("weeklyForecast");
     dailyForecast = context.globalState.get("dailyForecast");
-    console.log({
-      weeklyForecast,
-      dailyForecast,
-      geoLocation,
-    });
     weatherManStatusBarItem.command = "weatherman.forecast";
   } else {
     fetchData(context);
@@ -114,9 +111,10 @@ const getWebviewContent = (context, weatherManPanel) => {
     path.join(context.extensionPath, "dist", "index.html")
   );
   let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.path).toString();
-  htmlTemplate = htmlTemplate.replace(cssFile, webviewStyleUri.toString());
-  htmlTemplate = htmlTemplate.replace(jsFile, webviewScriptUri.toString());
-  htmlTemplate = htmlTemplate.replace(globalsFile, globalsScriptUri.toString());
+  htmlTemplate = htmlTemplate
+    .replace(cssFile, webviewStyleUri.toString())
+    .replace(jsFile, webviewScriptUri.toString())
+    .replace(globalsFile, globalsScriptUri.toString());
   return htmlTemplate;
 };
 
@@ -124,17 +122,20 @@ function activate(context) {
   let disposable = vscode.commands.registerCommand(
     "weatherman.forecast",
     () => {
-      console.log("command activated");
       const weatherManPanel = vscode.window.createWebviewPanel(
         "weatherMan",
         "WeatherMan",
         vscode.ViewColumn.One,
         {
           enableScripts: true,
+          retainContextWhenHidden: true,
           localResourceRoots: [
             vscode.Uri.file(path.join(context.extensionPath, "dist")),
           ],
         }
+      );
+      weatherManPanel.iconPath = vscode.Uri.file(
+        path.join(context.extensionPath, "dist", "resources", "weatherman.png")
       );
       weatherManPanel.webview.html = getWebviewContent(
         context,

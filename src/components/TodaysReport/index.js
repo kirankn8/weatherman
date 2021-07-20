@@ -5,8 +5,8 @@ import { weather } from "../../services";
 import "animate.css";
 import "./index.css";
 
-const TodaysReport = ({ weatherForecasts, geolocation }) => {
-  const forecast = weather.getCurrentWeatherUpdate(weatherForecasts);
+const TodaysReport = ({ dailyForecast, geolocation, time }) => {
+  const forecast = weather.getCurrentWeatherUpdate(dailyForecast);
   const emoji = forecast
     ? weather.generateWeatherEmoji(forecast.weather)
     : weather.generateWeatherEmoji("default");
@@ -16,18 +16,18 @@ const TodaysReport = ({ weatherForecasts, geolocation }) => {
       <div className={`${emoji.name}`}>
         <div className="today-forecast">
           <div className="weather-properties">
-            <span className="weather-properties-title">Time:</span>
-            <span className="weather-properties-info">
-              {new Date().toString()}
+            <span className="location-properties-info">
+              {`${geolocation.city}, ${geolocation.country}`}
+            </span>
+            <span className="location-properties-title">
+              {weather.generateWeatherEmoji("location").unicode}
             </span>
           </div>
 
           <div className="weather-properties">
-            <span className="weather-properties-title">
-              {weather.generateWeatherEmoji("location").unicode}
-            </span>
+            <span className="weather-properties-title">Time:</span>
             <span className="weather-properties-info">
-              {`${geolocation.city}, ${geolocation.country}`}
+              {new Date(time).toLocaleString()}
             </span>
           </div>
 
@@ -90,8 +90,9 @@ const TodaysReport = ({ weatherForecasts, geolocation }) => {
 };
 
 TodaysReport.propTypes = {
-  weatherForecasts: PropTypes.array.isRequired,
+  dailyForecast: PropTypes.array.isRequired,
   geolocation: PropTypes.object.isRequired,
+  time: PropTypes.number.isRequired,
 };
 
 export { TodaysReport };

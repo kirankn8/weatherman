@@ -5,7 +5,7 @@ import { stringutils } from "../../utils";
 import "./index.css";
 
 const DailyForecast = ({ dailyForecast }) => {
-  const forecasts = weather.getNextNWeatherUpdates(dailyForecast, 4);
+  const forecasts = weather.getNextNWeatherUpdates(dailyForecast, 6);
   const getEmoji = (word) => weather.generateWeatherEmoji(word).unicode;
   const formatTime = (time) => new Date(time).toLocaleTimeString();
 

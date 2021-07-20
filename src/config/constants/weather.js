@@ -70,7 +70,7 @@ const weatherQnAConstants = {
 const getQnA = (id, weather, time) => {
   const qa = weatherQnAConstants[id] || weatherQnAConstants["default"];
   let details = qa.details.replace("__weather__", weather);
-  details = details.replace("__time__", new Date(time).toDateString());
+  details = details.replace("__time__", new Date(time).toLocaleString());
   return { answer: qa.answer, details };
 };
 

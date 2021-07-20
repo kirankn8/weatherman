@@ -3,7 +3,7 @@ import { QnA } from "./components/QnA";
 import { TodaysReport } from "./components/TodaysReport";
 import { DailyForecast } from "./components/DailyForecast";
 import { WeeklyForecast } from "./components/WeeklyForecast";
-import { filter, fromEvent, map, tap } from "rxjs";
+import { filter, fromEvent, map } from "rxjs";
 import "./app.css";
 
 const vscode = window["vscode"];
@@ -14,6 +14,15 @@ const App = () => {
   const [geolocation, setGeolocation] = useState({});
   const [dataLoaded, setDataLoaded] = useState(false);
 
+  const [time, setTime] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(Date.now()), 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   useEffect(() => {
     fromEvent(window, "message")
       .pipe(
@@ -23,7 +32,6 @@ const App = () => {
       )
       .subscribe(
         ({ dailyForecast: df, weeklyForecast: wf, geoLocation: gl }) => {
-          console.log("Inside Subscribe. ...");
           setDailyForecast(df.forecast);
           setWeeklyForecast(wf.forecast);
           setGeolocation(gl.geolocation);
@@ -32,20 +40,15 @@ const App = () => {
       );
   }, []);
   if (dataLoaded) {
-    console.log(
-      "dailyForecast, weeklyForecast, geolocation: ",
-      dailyForecast,
-      weeklyForecast,
-      geolocation
-    );
     return (
       <div>
         <div className="banner">
           <TodaysReport
-            weatherForecasts={dailyForecast}
+            time={time}
+            dailyForecast={dailyForecast}
             geolocation={geolocation}
           />
-          <QnA weatherForecasts={dailyForecast} />
+          <QnA dailyForecast={dailyForecast} />
         </div>
         <DailyForecast dailyForecast={dailyForecast} />
         <WeeklyForecast weeklyForecast={weeklyForecast} />

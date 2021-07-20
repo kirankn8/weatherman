@@ -5,6 +5,7 @@ import { stringutils } from "../../utils";
 import "./index.css";
 
 const WeeklyForecast = ({ weeklyForecast }) => {
+  const weeklyForecastUpdated = weeklyForecast.slice(1);
   const getEmoji = (word) => weather.generateWeatherEmoji(word).unicode;
   const formatTime = (time) => new Date(time).toDateString();
 
@@ -38,7 +39,7 @@ const WeeklyForecast = ({ weeklyForecast }) => {
     <div className="forecast-container">
       <div className="forecast-heading">Weekly Forecast</div>
       <div className="forecast-body">
-        {weeklyForecast.map((forecast) => renderTimeForecast(forecast))}
+        {weeklyForecastUpdated.map((forecast) => renderTimeForecast(forecast))}
       </div>
     </div>
   );

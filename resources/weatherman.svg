@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: SketchAPI 2021.4.25.11 <https://api.sketch.io/> -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketchjs="https://sketch.io/dtd/" sketchjs:version="2021.4.25.11">
+<defs>
+	<linearGradient x1="701.57" y1="329.83" x2="600.58" y2="780.69" id="a" gradientUnits="userSpaceOnUse">
+		<stop offset="0" style="stop-color:#d400ca;"/>
+		<stop offset="1" style="stop-color:#ff39f6;"/>
+	</linearGradient>
+	<linearGradient x1="450.27" y1="134.44" x2="739.72" y2="494.47" id="b" gradientUnits="userSpaceOnUse">
+		<stop offset="0" style="stop-color:#7b00e6;"/>
+		<stop offset="1" style="stop-color:#ab4bff;"/>
+	</linearGradient>
+	<linearGradient x1="140.83" y1="207.14" x2="602.7" y2="207.14" id="c" gradientUnits="userSpaceOnUse">
+		<stop offset="0" style="stop-color:#0068ff;"/>
+		<stop offset="1" style="stop-color:#65a4ff;"/>
+	</linearGradient>
+	<linearGradient x1="6.303" y1="497.49" x2="292.65" y2="135.1" id="d" gradientUnits="userSpaceOnUse">
+		<stop offset="0" style="stop-color:#00bd3d;"/>
+		<stop offset="1" style="stop-color:#23ff6a;"/>
+	</linearGradient>
+	<linearGradient x1="147.98" y1="782.5" x2="43.082" y2="332.57" id="e" gradientUnits="userSpaceOnUse">
+		<stop offset="0" style="stop-color:#ff0;"/>
+		<stop offset="1" style="stop-color:#ffff65;"/>
+	</linearGradient>
+	<linearGradient x1="459.16" y1="849.53" x2="41.918" y2="650.85" id="f" gradientUnits="userSpaceOnUse">
+		<stop offset="0" style="stop-color:#ff8000;"/>
+		<stop offset="1" style="stop-color:#ffb265;"/>
+	</linearGradient>
+	<linearGradient x1="705.55" y1="648.06" x2="290" y2="850.28" id="g" gradientUnits="userSpaceOnUse">
+		<stop offset="0" style="stop-color:#ff0000;"/>
+		<stop offset="1" style="stop-color:#ff6565;"/>
+	</linearGradient>
+</defs>
+<g sketchjs:uid="1" style="fill-rule: evenodd;">
+	<path d="M600.58 780.69L372.97 493.02l328.6-163.19z" transform="matrix(1,0,0,1,-6.302999973297119,-134.44000244140625)" sketchjs:uid="2" style="fill: url(#a); fill-opacity: 0.996;"/>
+	<path d="M739.72 494.47l-366.75-1.448 77.296-358.58z" transform="matrix(1,0,0,1,-6.302999973297119,-134.44000244140625)" sketchjs:uid="3" style="fill: url(#b);"/>
+	<path d="M602.7 207.14L372.97 493.02 140.83 209.08z" transform="matrix(1,0,0,1,-6.302999973297119,-134.44000244140625)" sketchjs:uid="4" style="fill: url(#c);"/>
+	<path d="M292.65 135.1l80.32 357.92L6.3 497.49z" transform="matrix(1,0,0,1,-6.302999973297119,-134.44000244140625)" sketchjs:uid="5" style="fill: url(#d);"/>
+	<path d="M43.082 332.57l104.9 449.93 224.99-289.48z" transform="matrix(1,0,0,1,-6.302999973297119,-134.44000244140625)" sketchjs:uid="6" style="fill: url(#e);"/>
+	<path d="M41.918 650.85l417.24 198.68-86.19-356.51z" transform="matrix(1,0,0,1,-6.302999973297119,-134.44000244140625)" sketchjs:uid="7" style="fill: url(#f);"/>
+	<path d="M372.98 493.01L290 850.28 553.98 721.8l-181-228.79zm264.43 123.26l-16.34 72.89 84.48-41.1-68.14-31.79z" transform="matrix(1,0,0,1,-6.302999973297119,-134.44000244140625)" sketchjs:uid="8" style="fill: url(#g); fill-opacity: 0.992;"/>
+</g>
+<g sketchjs:uid="9" style="fill-opacity: 0.4;">
+	<path d="M366.67 358.58L302.79 73.93l25.07-.107zM366.667 358.58l-262.33-127.63 15.56-19.66zM366.667 358.58l-263.3 125.61-5.68-24.42zM366.667 358.58l-65.99 284.17-22.63-10.79zM366.667 358.58l181 228.79-22.54 10.965zM366.667 358.58l291.73 1.066-5.475 24.46z" sketchjs:uid="10"/>
+	<path d="M366.667 358.58l182.82-227.34 15.702 19.538zM614.787 554.71l22.538-10.968 5.51-56.443-11.723-5.468zM674.747 287.06l5.492-24.456-40.671-39.522-11.587 5.749zM502.567 72.99l-15.715-19.527-56.25 7.21-2.718 12.645zM227.887 74.38l-25.065.133-29.395 48.498 8.2 10.003zM57.95 289.86l-15.526 19.677 19.584 53.222 12.933-.174zM120.357 556.98l5.693 24.41 53.813 17.898 7.933-10.216zM368.127 674.85l22.631 10.775 47.553-30.9-3.037-12.573z" sketchjs:uid="11"/>
+</g>
+</svg>

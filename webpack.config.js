@@ -2,13 +2,15 @@ require("dotenv").config();
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const Dotenv = require("dotenv-webpack");
-const ResourceHintWebpackPlugin = require("resource-hints-webpack-plugin");
 const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
 const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
 
-const webViewConfig = {
+const isProd = process.env.NODE_ENV === "production" ? true : false;
+console.log(`**********  ENVIRONMENT = ${process.env.NODE_ENV}  **********`);
+
+const devWebviewWebpackConfig = {
   mode: "development",
-  target: "web", // default
   devtool: "source-map",
   devServer: {
     contentBase: "./dist",
@@ -20,6 +22,33 @@ const webViewConfig = {
       "Access-Control-Allow-Origin": "*",
     },
   },
+  optimization: {},
+};
+
+const devExtensionWebpackConfig = {
+  mode: "development",
+  devtool: "source-map",
+  optimization: {},
+};
+
+const cspPluginConfig = isProd
+  ? {
+      "script-src": ["https://*.vscode-webview.net", "https://*"],
+      "style-src": ["https://*.vscode-webview.net", "https://*"],
+      "default-src": ["https://*.vscode-webview.net", "https://*"],
+    }
+  : {
+      "default-src": [
+        "https://*.vscode-webview.net",
+        "http://localhost:8080",
+        "ws://localhost:8080",
+        "https://*",
+      ],
+    };
+
+const webViewConfig = {
+  mode: "production",
+  target: "web",
   entry: { bundle: "./src/index.js", globals: "./template/globals.js" },
   plugins: [
     new Dotenv(),
@@ -29,45 +58,18 @@ const webViewConfig = {
       chunks: ["globals", "bundle"],
       chunksSortMode: "manual",
     }),
-    // new CspHtmlWebpackPlugin({
-    //   // TODO: Need to fix the below config for prod
-    //   "script-src": [
-    //     // "https://*.vscode-webview.net",
-    //     "http://localhost:8080",
-    //     "ws://localhost:8080",
-    //     "https://*",
-    //   ],
-    //   "style-src": [
-    //     // "https://*.vscode-webview.net",
-    //     "http://localhost:8080",
-    //     "ws://localhost:8080",
-    //     "https://*",
-    //   ],
-    // }),
-    // new ResourceHintWebpackPlugin(),
+    new CspHtmlWebpackPlugin(cspPluginConfig),
     new MiniCssExtractPlugin(),
   ],
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
-    // clean: true,
   },
   module: {
     rules: [
       {
         test: /\.css$/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            // options: {
-            //   importLoaders: 1,
-            //   modules: {
-            //     localIdentName: "[name]__[local]__[hash:base64:5]",
-            //   },
-            // },
-          },
-        ],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -84,16 +86,16 @@ const webViewConfig = {
       },
     ],
   },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  },
+  ...(!isProd && devWebviewWebpackConfig),
 };
 
 const extensionConfig = {
-  mode: "development",
+  mode: "production",
   target: "node",
-  devtool: "source-map",
-  // devServer: {
-  //   contentBase: "./dist",
-  //   port: 8081,
-  // },
   entry: "./extension.js",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -102,7 +104,6 @@ const extensionConfig = {
       type: "commonjs2",
     },
     devtoolModuleFilenameTemplate: "../[resource-path]",
-    // clean: true,
   },
   externals: {
     vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
@@ -116,6 +117,11 @@ const extensionConfig = {
       },
     ],
   },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  },
+  ...(!isProd && devExtensionWebpackConfig),
 };
 
 module.exports = [webViewConfig, extensionConfig];

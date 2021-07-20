@@ -9,7 +9,6 @@ const getGeoLocation = (ipAddress) => {
     serviceSettings.location.locationSource,
     ipAddress
   );
-  console.log(api);
   return rxjsaxios
     .getMethod(api)
     .pipe(map(locationAdapter[serviceSettings.location.locationSource]));

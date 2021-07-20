@@ -48,3 +48,7 @@
 .partly_cloudy {
   color: rgb(201, 201, 201);
 }
+
+.location-properties-info {
+  margin-right: 5px;
+}

@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import "./index.css";
 import { weather } from "../../services";
 
-const QnA = ({ weatherForecasts }) => {
-  const qa = weather.isUmbrellaRequired(weatherForecasts);
+const QnA = ({ dailyForecast }) => {
+  const qa = weather.isUmbrellaRequired(dailyForecast);
   return (
     <div className="qna-container">
       <div className="question">Do I need an Umbrella?</div>
@@ -15,7 +15,7 @@ const QnA = ({ weatherForecasts }) => {
 };
 
 QnA.propTypes = {
-  weatherForecasts: PropTypes.array.isRequired,
+  dailyForecast: PropTypes.array.isRequired,
 };
 
 export { QnA };
