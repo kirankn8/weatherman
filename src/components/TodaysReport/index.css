@@ -27,26 +27,34 @@
   font-size: 1.2em;
 }
 
-.clear {
+.clear,
+.sun {
   color: orange;
+  --animate-duration: 4s;
 }
 
-.rain {
+.rain,
+.shower {
   color: rgb(28, 115, 230);
+  --animate-duration: 4s;
 }
 
 .snow {
   color: rgb(0, 183, 255);
+  --animate-duration: 4s;
 }
 
-.thunder {
+.thunder,
+.ts {
   color: rgb(182, 182, 35);
   --animate-duration: 4s;
 }
 
 .cloudy,
-.partly_cloudy {
+.partly_cloudy,
+.cloud {
   color: rgb(201, 201, 201);
+  --animate-duration: 4s;
 }
 
 .location-properties-info {

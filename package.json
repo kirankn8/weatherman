@@ -2,14 +2,18 @@
   "name": "weatherman",
   "displayName": "WeatherMan",
   "description": "Provides intelligent weather forecast",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "author": {
+    "name": "Kiran Kilingar Nadumane"
+  },
+  "publisher": "kn",
   "engines": {
     "vscode": "^1.58.0"
   },
   "categories": [
     "Other"
   ],
-  "icon": "dist/resources/weatherman.png",
+  "icon": "dist/weatherman.png",
   "activationEvents": [
     "onStartupFinished",
     "onCommand:weatherman.forecast"
@@ -21,18 +25,26 @@
         "command": "weatherman.forecast",
         "title": "WeatherMan"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "weatherman.forecast",
+        "key": "ctrl+w"
+      }
     ]
   },
   "scripts": {
     "start": "npm run build && npm run serve",
     "serve": "webpack serve --mode=development",
-    "build": "rimraf dist && webpack --config webpack.config.js --mode=development && copy resources/weatherman.png dist",
+    "build": "rimraf dist && webpack --config webpack.config.js --mode=development && copyfiles -f resources/weatherman.png dist",
     "watch": "webpack --watch --mode=development",
     "lint": "eslint .",
     "pretest": "npm run lint",
     "preinstall": "npx npm-force-resolutions",
-    "prod": "rimraf dist && NODE_ENV=production webpack --config webpack.config.js --mode=production && copy resources/weatherman.png dist",
-    "test": "node ./test/runTest.js"
+    "prod": "rimraf dist && NODE_ENV=production webpack --config webpack.config.js --mode=production && copyfiles -f resources/weatherman.png dist",
+    "test": "node ./test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",
@@ -46,6 +58,7 @@
     "babel-loader": "^8.2.2",
     "babel-preset-react-app": "^10.0.0",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "copyfiles": "^2.4.1",
     "csp-html-webpack-plugin": "^5.1.0",
     "css-hot-loader": "^1.4.4",
     "css-loader": "^5.2.6",
@@ -70,14 +83,15 @@
   "dependencies": {
     "animate.css": "^4.1.1",
     "axios": "^0.21.1",
-    "copy": "^0.3.2",
+    "backoff-rxjs": "^6.5.7",
     "dotenv": "^10.0.0",
     "eslint-plugin-react": "^7.24.0",
     "prop-types": "^15.7.2",
     "public-ip": "^4.0.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "vsce": "^1.96.0"
   },
   "resolutions": {
     "glob-parent": "^5.1.2"

@@ -1,8 +1,12 @@
-import { map, min } from "rxjs";
+// @ts-nocheck
+import { map } from "rxjs";
 import { rxjsaxios } from "../utils";
 import { weatherAdapter } from "../utils/adpaters";
 import { weather } from "../config/constants";
-import { serviceSettings } from "../config/settings";
+import { extensionSettings } from "../config/settings/extension";
+import { weatherManEmojis } from "../config/constants/emoji";
+
+const serviceSettings = extensionSettings.services;
 
 const getDailyWeatherForecast = (latitude, longitude) => {
   const api = weather.getWeatherApi(
@@ -29,10 +33,10 @@ const getWeeklyWeatherForecast = (latitude, longitude) => {
 const generateWeatherEmoji = (weatherWord = "") => {
   weatherWord = weatherWord.toLowerCase();
   weatherWord = weatherWord.replace(/\s/g, "");
-  if (weather.weatherEmojis[weatherWord]) {
-    return weather.weatherEmojis[weatherWord];
+  if (weatherManEmojis[weatherWord]) {
+    return weatherManEmojis[weatherWord];
   }
-  const weatherIcons = Object.keys(weather.weatherEmojis);
+  const weatherIcons = Object.keys(weatherManEmojis);
   let weatherWordKey = "default";
   for (const weather of weatherIcons) {
     if (weatherWord.indexOf(weather) != -1) {
@@ -40,11 +44,10 @@ const generateWeatherEmoji = (weatherWord = "") => {
       break;
     }
   }
-  return weather.weatherEmojis[weatherWordKey];
+  return weatherManEmojis[weatherWordKey];
 };
 
 const getNextNWeatherUpdates = (weatherForecasts, n) => {
-  // TODO: logic need to be reviewed based on storage of forecast in vscode
   const currentTime = new Date();
   let i = 0;
   for (; i < weatherForecasts.length; i++) {

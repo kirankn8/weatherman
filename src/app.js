@@ -3,7 +3,8 @@ import { QnA } from "./components/QnA";
 import { TodaysReport } from "./components/TodaysReport";
 import { DailyForecast } from "./components/DailyForecast";
 import { WeeklyForecast } from "./components/WeeklyForecast";
-import { filter, fromEvent, map } from "rxjs";
+import { filter, fromEvent, map, tap } from "rxjs";
+import { emojiConstants, weatherManEmojis } from "./config/constants/emoji";
 import "./app.css";
 
 const vscode = window["vscode"];
@@ -28,7 +29,9 @@ const App = () => {
       .pipe(
         filter((event) => Boolean(event["data"])),
         filter((event) => Boolean(event["data"]["geoLocation"])),
-        map((event) => event["data"])
+        map((event) => event["data"]),
+        filter((data) => !Object.values(data).some((element) => !element)),
+        tap((event) => console.log("event: ", event))
       )
       .subscribe(
         ({ dailyForecast: df, weeklyForecast: wf, geoLocation: gl }) => {
@@ -36,6 +39,9 @@ const App = () => {
           setWeeklyForecast(wf.forecast);
           setGeolocation(gl.geolocation);
           setDataLoaded(true);
+          vscode.postMessage({
+            command: "recieved_data",
+          });
         }
       );
   }, []);
@@ -55,7 +61,11 @@ const App = () => {
       </div>
     );
   }
-  return null;
+  return (
+    <div className="waiting-symbol">
+      {weatherManEmojis[emojiConstants.WAITING].unicode}
+    </div>
+  );
 };
 
 export { App };

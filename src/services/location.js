@@ -1,8 +1,11 @@
+// @ts-nocheck
 import { rxjsaxios } from "../utils";
-import { map, tap } from "rxjs";
+import { map } from "rxjs";
 import { locationAdapter } from "../utils/adpaters";
 import { location } from "../config/constants";
-import { serviceSettings } from "../config/settings";
+import { extensionSettings } from "../config/settings/extension";
+
+const serviceSettings = extensionSettings.services;
 
 const getGeoLocation = (ipAddress) => {
   const api = location.getGeoLocationApi(

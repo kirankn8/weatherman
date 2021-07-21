@@ -15,14 +15,16 @@ const TodaysReport = ({ dailyForecast, geolocation, time }) => {
     return (
       <div className={`${emoji.name}`}>
         <div className="today-forecast">
-          <div className="weather-properties">
-            <span className="location-properties-info">
-              {`${geolocation.city}, ${geolocation.country}`}
-            </span>
-            <span className="location-properties-title">
-              {weather.generateWeatherEmoji("location").unicode}
-            </span>
-          </div>
+          {geolocation.country && (
+            <div className="weather-properties">
+              <span className="location-properties-info">
+                {`${geolocation.city}, ${geolocation.country}`}
+              </span>
+              <span className="location-properties-title">
+                {weather.generateWeatherEmoji("location").unicode}
+              </span>
+            </div>
+          )}
 
           <div className="weather-properties">
             <span className="weather-properties-title">Time:</span>
@@ -57,7 +59,7 @@ const TodaysReport = ({ dailyForecast, geolocation, time }) => {
               Precipitation Type:
             </span>
             <span className="weather-properties-info">
-              {stringutils.arrayToString(forecast["precipitation Type"])}
+              {stringutils.arrayToString(forecast.precipitationType)}
             </span>
           </div>
 
@@ -76,7 +78,7 @@ const TodaysReport = ({ dailyForecast, geolocation, time }) => {
     <div className="todays-report-container">
       <div className="todays-report-heading">
         <div>Today&apos;s Weather</div>
-        <div className={`${emoji} todays-report`}>
+        <div className={`${emoji.name} todays-report`}>
           <div
             className={`emoji animate__animated animate__infinite animate__slower	${emoji.animate}`}
           >

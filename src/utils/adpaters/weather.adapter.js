@@ -1,3 +1,5 @@
+import { weatherSources } from "../../config/constants/weather";
+
 const _7timerweatherMappings = {
   mcloudy: "Cloudy",
   ts: "Thunderstorm",
@@ -118,7 +120,7 @@ const _7timerCivil = ({ init, dataseries = [] }) => {
         temperature: `${temp2m}°C`,
         weather: _7timerweatherMappings[weather] || weather,
         wind: `${wind10m.direction} ${getWindSpeed(wind10m.speed)}`,
-        "precipitation Type": getPrecipitationType(prec_type),
+        precipitationType: getPrecipitationType(prec_type),
         predictions: getPredictions({
           cloudcover,
           lifted_index,
@@ -166,6 +168,6 @@ const _7timerCivilLight = ({ dataseries }) => {
 };
 
 export default {
-  "7timer_Civil": _7timerCivil,
-  "7timer_CivilLight": _7timerCivilLight,
+  [weatherSources._7timer_Civil]: _7timerCivil,
+  [weatherSources._7timer_CivilLight]: _7timerCivilLight,
 };
