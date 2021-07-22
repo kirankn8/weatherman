@@ -75,8 +75,10 @@ const isUmbrellaRequired = (weatherForecasts) => {
     if (time > currentTime) break;
   }
 
+  if (i !== 0 && i === weatherForecasts.length) i = i - 1; // safety check
+
   let isClearWeather = true;
-  for (let j = i; j < Math.min(weatherForecasts.length, 12); j++) {
+  for (let j = i; j < Math.min(weatherForecasts.length, i + 12); j++) {
     const { name: weatherName } = generateWeatherEmoji(
       weatherForecasts[j].weather
     );

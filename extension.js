@@ -29,7 +29,9 @@ const activateWeatherMan = () => {
 
 const updateStatusBar = () => {
   if (weeklyForecast && dailyForecast) {
-    const weatherStatus = weeklyForecast.forecast[0].weather;
+    const { weather: weatherStatus } = weather.getCurrentWeatherUpdate(
+      weeklyForecast.forecast
+    );
     const weatherEmoji = weather.generateWeatherEmoji(weatherStatus).unicode;
     const { temperature } = weather.getCurrentWeatherUpdate(
       dailyForecast.forecast
@@ -44,7 +46,6 @@ const updateStatusBar = () => {
 };
 
 const loadData = (context) => {
-  console.log("loadData");
   geoLocation = context.globalState.get(extensionSettings.storage.location);
   if (geoLocation) {
     const now = +new Date();
@@ -58,7 +59,6 @@ const loadData = (context) => {
       dailyForecast = context.globalState.get(
         extensionSettings.storage.dailyForecast
       );
-      console.log("loadData: ", geoLocation, weeklyForecast, dailyForecast);
       updateStatusBar();
     } else {
       fetchData(context);
@@ -69,7 +69,6 @@ const loadData = (context) => {
 };
 
 const fetchData = (context) => {
-  console.log("fetchData");
   const geography = ipaddress.getIpAddress().pipe(
     mergeMap((ipaddr) => location.getGeoLocation(ipaddr)),
     tap((geolocation) => {
@@ -125,13 +124,11 @@ const fetchData = (context) => {
     dailyForecast = context.globalState.get(
       extensionSettings.storage.dailyForecast
     );
-    console.log("forkJoin: ", geoLocation, weeklyForecast, dailyForecast);
     updateStatusBar();
   });
 };
 
 const getWebviewContent = (context, weatherManPanel) => {
-  console.log("getWebviewContent");
   let webviewScriptUri, webviewStyleUri, globalsScriptUri;
   if (process.env.NODE_ENV === "development") {
     const server = extensionSettings.webpackConfig.developmentServer;
@@ -192,11 +189,9 @@ const getWebviewContent = (context, weatherManPanel) => {
 };
 
 function activate(context) {
-  console.log("activate");
   let disposable = vscode.commands.registerCommand(
     extensionSettings.invocationCmd,
     () => {
-      console.log("Inside disposible");
       const weatherManPanel = vscode.window.createWebviewPanel(
         extensionSettings.viewType,
         extensionSettings.appName,
