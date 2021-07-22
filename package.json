@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/kirankn8/weatherman.git"
   },
-  "publisher": "kirankn8",
+  "publisher": "Ekadyu",
   "engines": {
     "vscode": "^1.58.0"
   },

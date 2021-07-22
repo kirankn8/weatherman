@@ -12,6 +12,9 @@ P.S: You can also quickly check weather with `ctrl + w` shortcut.
 
 Please feel free to contribute and create a PR. Also let me know if you would like to see any new feature.
 
+
+---
+
 ## Release Notes
 
 Please find the release notes below:
@@ -20,9 +23,4 @@ Please find the release notes below:
 
 Initial release of WeatherMan extension.
 
----
 
-- publisher name in package.json
-- update readme
-- error handling
-- reposiroy instead of constants
