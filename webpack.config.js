@@ -1,10 +1,8 @@
-require("dotenv").config();
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const Dotenv = require("dotenv-webpack");
 const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
-const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
+const path = require("path");
 
 const isProd = process.env.NODE_ENV === "production" ? true : false;
 console.log(`**********  ENVIRONMENT = ${process.env.NODE_ENV}  **********`);
@@ -51,7 +49,6 @@ const webViewConfig = {
   target: "web",
   entry: { bundle: "./src/index.js", globals: "./template/globals.js" },
   plugins: [
-    new Dotenv(),
     new HtmlWebpackPlugin({
       title: "WeatherMan",
       template: "template/index.html",

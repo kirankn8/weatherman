@@ -3,7 +3,7 @@ import { QnA } from "./components/QnA";
 import { TodaysReport } from "./components/TodaysReport";
 import { DailyForecast } from "./components/DailyForecast";
 import { WeeklyForecast } from "./components/WeeklyForecast";
-import { filter, fromEvent, map, tap } from "rxjs";
+import { filter, fromEvent, map } from "rxjs";
 import { emojiConstants, weatherManEmojis } from "./config/constants/emoji";
 import "./app.css";
 
@@ -31,7 +31,6 @@ const App = () => {
         filter((event) => Boolean(event["data"]["geoLocation"])),
         map((event) => event["data"]),
         filter((data) => !Object.values(data).some((element) => !element)),
-        tap((event) => console.log("event: ", event))
       )
       .subscribe(
         ({ dailyForecast: df, weeklyForecast: wf, geoLocation: gl }) => {

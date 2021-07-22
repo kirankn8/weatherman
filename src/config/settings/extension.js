@@ -22,7 +22,7 @@ export const extensionSettings = {
     location: "location",
   },
   services: {
-    updateFrequencyInHrs: 0,
+    updateFrequencyInHrs: 3,
     retryStrategy: {
       numberOfRetries: 3,
       initalInterval: 100,

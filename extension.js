@@ -171,7 +171,7 @@ const getWebviewContent = (context, weatherManPanel) => {
       extensionSettings.webpackConfig.htmlFile
     )
   );
-  let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.path).toString();
+  let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.fsPath).toString();
   htmlTemplate = htmlTemplate
     .replace(
       extensionSettings.webpackConfig.webviewCssFile,
