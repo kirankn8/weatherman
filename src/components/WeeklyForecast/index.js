@@ -11,8 +11,8 @@ const WeeklyForecast = ({ weeklyForecast }) => {
 
   const renderTimeForecast = (forecast) => {
     return (
-      <div className="time-forecast-container" key={`weekly-${forecast.time}`}>
-        <div className="time-forecast-heading">{formatTime(forecast.time)}</div>
+      <div className="time-forecast-container" key={`weekly-${forecast.timestamp}`}>
+        <div className="time-forecast-heading">{formatTime(forecast.timestamp)}</div>
         <div className="time-forecast-body">
           <div>
             <span className="time-forecast-detail-emoji">

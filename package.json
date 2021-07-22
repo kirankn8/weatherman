@@ -6,7 +6,11 @@
   "author": {
     "name": "Kiran Kilingar Nadumane"
   },
-  "publisher": "kn",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kirankn8/weatherman.git"
+  },
+  "publisher": "kirankn8",
   "engines": {
     "vscode": "^1.58.0"
   },
@@ -43,8 +47,8 @@
     "preinstall": "npx npm-force-resolutions",
     "prod": "rimraf dist && cross-env NODE_ENV=production webpack --config webpack.config.js --mode=production && copyfiles -f resources/weatherman.png dist",
     "test": "node ./test/runTest.js",
-    "package": "vsce package",
-    "publish": "vsce publish"
+    "package": "npm run prod && vsce package --yarn",
+    "publish": "vsce publish --yarn"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",

@@ -48,8 +48,8 @@ const updateStatusBar = () => {
 const loadData = (context) => {
   geoLocation = context.globalState.get(extensionSettings.storage.location);
   if (geoLocation) {
-    const now = +new Date();
-    const lastUpdated = +new Date(geoLocation.timestamp);
+    const now = new Date().getTime();
+    const lastUpdated = new Date(geoLocation.timestamp).getTime();
     const msToHrs = 3600000;
     const hourdiff = (now - lastUpdated) / msToHrs;
     if (hourdiff <= extensionSettings.services.updateFrequencyInHrs) {
@@ -74,7 +74,7 @@ const fetchData = (context) => {
     tap((geolocation) => {
       const geo = {
         geolocation: geolocation,
-        timestamp: new Date(),
+        timestamp: new Date().getTime(),
       };
       from(context.globalState.update(extensionSettings.storage.location, geo));
     }),
@@ -88,7 +88,7 @@ const fetchData = (context) => {
     tap((weather) => {
       const dailyForecast = {
         forecast: weather,
-        timestamp: new Date(),
+        timestamp: new Date().getTime(),
       };
       from(
         context.globalState.update(
@@ -105,7 +105,7 @@ const fetchData = (context) => {
     tap((weather) => {
       const weeklyForecast = {
         forecast: weather,
-        timestamp: new Date(),
+        timestamp: new Date().getTime(),
       };
       from(
         context.globalState.update(

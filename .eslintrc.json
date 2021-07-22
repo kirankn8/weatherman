@@ -25,8 +25,8 @@
     "valid-typeof": "warn",
     "react/no-set-state": "off",
     "no-console": "warn",
-    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
-    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   },
   "globals": {
     "document": false

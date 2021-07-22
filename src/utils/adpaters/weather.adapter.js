@@ -40,7 +40,7 @@ const _7timerCivil = ({ init, dataseries = [] }) => {
   const month = init.slice(4, 6);
   const date = init.slice(6, 8);
   const hour = init.slice(8, 10);
-  const time = new Date(year, month - 1, date, hour);
+  const time = new Date(year, month - 1, date, hour).getTime();
 
   const getPredictions = ({
     cloudcover,
@@ -101,6 +101,17 @@ const _7timerCivil = ({ init, dataseries = [] }) => {
     return speedMap[windSpeed];
   };
 
+  const windDirection = {
+    N: "North",
+    NE: "North-East",
+    SE: "South-East",
+    S: "South",
+    SW: "South-West",
+    E: "East",
+    W: "West",
+    NW: "North-West",
+  };
+
   return dataseries.map(
     ({
       timepoint,
@@ -116,10 +127,10 @@ const _7timerCivil = ({ init, dataseries = [] }) => {
       const timestamp = new Date(time);
       timestamp.setHours(timestamp.getHours() + timepoint);
       return {
-        time: timestamp.toLocaleString(),
+        timestamp: timestamp.getTime(),
         temperature: `${temp2m}°C`,
         weather: _7timerweatherMappings[weather] || weather,
-        wind: `${wind10m.direction} ${getWindSpeed(wind10m.speed)}`,
+        wind: `${windDirection[wind10m.direction]} ${getWindSpeed(wind10m.speed)}`,
         precipitationType: getPrecipitationType(prec_type),
         predictions: getPredictions({
           cloudcover,
@@ -139,7 +150,7 @@ const _7timerCivilLight = ({ dataseries }) => {
     const year = time.slice(0, 4);
     const month = time.slice(4, 6);
     const date = time.slice(6, 8);
-    return new Date(year, month - 1, date);
+    return new Date(year, month - 1, date).getTime();
   };
 
   const getWindSpeed = (windSpeed) => {
@@ -159,7 +170,7 @@ const _7timerCivilLight = ({ dataseries }) => {
   return dataseries.map(({ date, weather, temp2m, wind10m_max }) => {
     const timestamp = getDate(date);
     return {
-      time: timestamp.toLocaleString(),
+      timestamp: timestamp,
       temperature: `Max: ${temp2m.max}°C, Min: ${temp2m.min}°C`,
       weather: _7timerweatherMappings[weather] || weather,
       wind: `${getWindSpeed(wind10m_max)}`,

@@ -48,30 +48,30 @@ const generateWeatherEmoji = (weatherWord = "") => {
 };
 
 const getNextNWeatherUpdates = (weatherForecasts, n) => {
-  const currentTime = new Date();
+  const currentTime = new Date().getTime();
   let i = 0;
   for (; i < weatherForecasts.length; i++) {
-    const time = new Date(weatherForecasts[i].time);
+    const time = new Date(weatherForecasts[i].timestamp).getTime();
     if (time > currentTime) break;
   }
   return weatherForecasts.slice(i, i + n);
 };
 
 const getCurrentWeatherUpdate = (weatherForecasts) => {
-  const currentTime = new Date();
+  const currentTime = new Date().getTime();
   let i = 0;
   for (; i < weatherForecasts.length; i++) {
-    const time = new Date(weatherForecasts[i].time);
+    const time = new Date(weatherForecasts[i].timestamp).getTime();
     if (time > currentTime) break;
   }
   return i == 0 ? weatherForecasts[0] : weatherForecasts[i - 1];
 };
 
 const isUmbrellaRequired = (weatherForecasts) => {
-  const currentTime = new Date();
+  const currentTime = new Date().getTime();
   let i = 0;
   for (; i < weatherForecasts.length; i++) {
-    const time = new Date(weatherForecasts[i].time);
+    const time = new Date(weatherForecasts[i].timestamp).getTime();
     if (time > currentTime) break;
   }
 
@@ -86,7 +86,7 @@ const isUmbrellaRequired = (weatherForecasts) => {
       return weather.getQnA(
         weatherName,
         weatherForecasts[j].weather,
-        weatherForecasts[j].time
+        weatherForecasts[j].timestamp
       );
     }
     if (weatherName !== "clear") {
@@ -97,7 +97,7 @@ const isUmbrellaRequired = (weatherForecasts) => {
   return weather.getQnA(
     isClearWeather ? "clear" : "default",
     weatherForecasts[i].weather,
-    weatherForecasts[i].time
+    weatherForecasts[i].timestamp
   );
 };
 
