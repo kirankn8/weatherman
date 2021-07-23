@@ -15,6 +15,7 @@ const geographySubject = new Subject();
 let geoLocation = null,
   weeklyForecast = null,
   dailyForecast = null;
+let loadDataInterval;
 
 const activateWeatherMan = () => {
   weatherManStatusBarItem = vscode.window.createStatusBarItem(
@@ -262,10 +263,15 @@ function activate(context) {
   );
   activateWeatherMan();
   loadData(context);
+  loadDataInterval = setInterval(() => loadData(context), 3600000);
   context.subscriptions.push(disposable);
 }
 
-function deactivate() {}
+function deactivate() {
+  if(loadDataInterval) {
+    clearInterval(loadDataInterval);
+  }
+}
 
 module.exports = {
   activate,
