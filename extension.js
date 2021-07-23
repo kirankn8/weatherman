@@ -189,7 +189,7 @@ const getWebviewContent = (context, weatherManPanel) => {
   return htmlTemplate;
 };
 
-function activate(context) {
+const activate = (context) => {
   let disposable = vscode.commands.registerCommand(
     extensionSettings.invocationCmd,
     () => {
@@ -271,11 +271,11 @@ function activate(context) {
   );
   activateWeatherMan();
   loadData(context);
-  loadDataInterval = setInterval(() => loadData(context), 3600000);
+  loadDataInterval = setInterval(() => loadData(context), 5000);
   context.subscriptions.push(disposable);
 }
 
-function deactivate() {
+const deactivate = () => {
   if(loadDataInterval) {
     clearInterval(loadDataInterval);
   }
