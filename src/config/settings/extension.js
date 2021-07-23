@@ -6,7 +6,7 @@ export const extensionSettings = {
   viewType: "weatherMan",
   appName: "WeatherMan",
   invocationCmd: "weatherman.forecast",
-  statusBarPriority: 0,
+  statusBarPriority: -1,
   webpackConfig: {
     outputDir: "dist",
     webviewJsFile: "bundle.js",
