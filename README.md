@@ -12,15 +12,14 @@ P.S: You can also quickly check weather with `ctrl + w` shortcut.
 
 Please feel free to contribute and create a PR. Also let me know if you would like to see any new feature.
 
-
 ---
 
 ## Release Notes
 
 Please find the release notes below:
 
-### 1.0.0
+### 1.0.x
 
-Initial release of WeatherMan extension.
-
-
+- Initial release of WeatherMan extension.
+- Fix weather update issues
+- Fix tooltip issue

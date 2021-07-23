@@ -130,7 +130,9 @@ const _7timerCivil = ({ init, dataseries = [] }) => {
         timestamp: timestamp.getTime(),
         temperature: `${temp2m}°C`,
         weather: _7timerweatherMappings[weather] || weather,
-        wind: `${windDirection[wind10m.direction]} ${getWindSpeed(wind10m.speed)}`,
+        wind: `${windDirection[wind10m.direction]} ${getWindSpeed(
+          wind10m.speed
+        )}`,
         precipitationType: getPrecipitationType(prec_type),
         predictions: getPredictions({
           cloudcover,

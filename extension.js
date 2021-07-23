@@ -2,20 +2,29 @@ const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
 const { location, weather, ipaddress } = require("./src/services");
-const { tap, mergeMap, from, Subject, share, forkJoin } = require("rxjs");
+const {
+  tap,
+  mergeMap,
+  from,
+  Subject,
+  share,
+  forkJoin,
+  filter,
+} = require("rxjs");
 const {
   weatherManEmojis,
   emojiConstants,
 } = require("./src/config/constants/emoji");
 const { labels } = require("./src/config/constants/labels");
 const { extensionSettings } = require("./src/config/settings/extension");
+const { timeDiffT2MinusT1, msToHrs, HrstoMs } = require("./src/utils/time");
 
 let weatherManStatusBarItem;
 const geographySubject = new Subject();
 let geoLocation = null,
   weeklyForecast = null,
   dailyForecast = null;
-let loadDataInterval;
+let fetchDataInterval, updateStatusBarInterval;
 
 const activateWeatherMan = () => {
   weatherManStatusBarItem = vscode.window.createStatusBarItem(
@@ -46,43 +55,55 @@ const updateStatusBar = () => {
   }
 };
 
-const loadData = (context) => {
-  geoLocation = context.globalState.get(extensionSettings.storage.location);
-  if (geoLocation) {
-    const now = new Date().getTime();
-    const lastUpdated = new Date(geoLocation.timestamp).getTime();
-    const msToHrs = 3600000;
-    const hourdiff = (now - lastUpdated) / msToHrs;
-    if (hourdiff <= extensionSettings.services.updateFrequencyInHrs) {
-      weeklyForecast = context.globalState.get(
-        extensionSettings.storage.weeklyForecast
-      );
-      dailyForecast = context.globalState.get(
-        extensionSettings.storage.dailyForecast
-      );
-      updateStatusBar();
-    } else {
-      fetchData(context);
-    }
-  } else {
-    fetchData(context);
-  }
+const getIpAddress = (context) => {
+  const globalState = context.globalState;
+  const { storage, services } = extensionSettings;
+  return ipaddress.getIpAddress().pipe(
+    filter((ipAddress) => {
+      const exisitingIpAddress = globalState.get(storage.ipAddress);
+      if (exisitingIpAddress) {
+        const now = new Date().getTime();
+        const lastUpdated = new Date(exisitingIpAddress.timestamp).getTime();
+        const hourdiff = msToHrs(timeDiffT2MinusT1(lastUpdated, now));
+        if (
+          hourdiff <= services.ipAddrUpdateFreqInHrs &&
+          ipAddress === exisitingIpAddress.ipAddress
+        ) {
+          geoLocation = globalState.get(storage.location);
+          weeklyForecast = globalState.get(storage.weeklyForecast);
+          dailyForecast = globalState.get(storage.dailyForecast);
+          return false;
+        }
+        return true;
+      }
+      return true;
+    })
+  );
 };
 
 const fetchData = (context) => {
-  const geography = ipaddress.getIpAddress().pipe(
+  const globalState = context.globalState;
+  const { storage } = extensionSettings;
+  const geography = getIpAddress(context).pipe(
+    tap((ipaddr) => {
+      const publicAddress = {
+        ipAddress: ipaddr,
+        timestamp: new Date().getTime(),
+      };
+      from(globalState.update(storage.ipAddress, publicAddress));
+    }),
     mergeMap((ipaddr) => location.getGeoLocation(ipaddr)),
     tap((geolocation) => {
       const geo = {
         geolocation: geolocation,
         timestamp: new Date().getTime(),
       };
-      from(context.globalState.update(extensionSettings.storage.location, geo));
+      from(globalState.update(storage.location, geo));
     }),
     share({ connector: () => geographySubject })
   );
 
-  const daily = geography.pipe(
+  const dailyWeather = geography.pipe(
     mergeMap(({ latitude, longitude }) =>
       weather.getDailyWeatherForecast(latitude, longitude)
     ),
@@ -91,15 +112,11 @@ const fetchData = (context) => {
         forecast: weather,
         timestamp: new Date().getTime(),
       };
-      from(
-        context.globalState.update(
-          extensionSettings.storage.dailyForecast,
-          dailyForecast
-        )
-      );
+      from(globalState.update(storage.dailyForecast, dailyForecast));
     })
   );
-  const weekly = geography.pipe(
+
+  const weeklyWeather = geography.pipe(
     mergeMap(({ latitude, longitude }) =>
       weather.getWeeklyWeatherForecast(latitude, longitude)
     ),
@@ -108,88 +125,50 @@ const fetchData = (context) => {
         forecast: weather,
         timestamp: new Date().getTime(),
       };
-      from(
-        context.globalState.update(
-          extensionSettings.storage.weeklyForecast,
-          weeklyForecast
-        )
-      );
+      from(globalState.update(storage.weeklyForecast, weeklyForecast));
     })
   );
 
-  forkJoin({ daily, weekly }).subscribe(() => {
-    geoLocation = context.globalState.get(extensionSettings.storage.location);
-    weeklyForecast = context.globalState.get(
-      extensionSettings.storage.weeklyForecast
-    );
-    dailyForecast = context.globalState.get(
-      extensionSettings.storage.dailyForecast
-    );
-    updateStatusBar();
+  forkJoin({ dailyWeather, weeklyWeather }).subscribe(() => {
+    geoLocation = globalState.get(storage.location);
+    weeklyForecast = globalState.get(storage.weeklyForecast);
+    dailyForecast = globalState.get(storage.dailyForecast);
   });
 };
 
 const getWebviewContent = (context, weatherManPanel) => {
+  const { webpackConfig } = extensionSettings;
+  const outputPath = path.join(context.extensionPath, webpackConfig.outputDir);
   let webviewScriptUri, webviewStyleUri, globalsScriptUri;
   if (process.env.NODE_ENV === "development") {
     const server = extensionSettings.webpackConfig.developmentServer;
-    webviewScriptUri = `${server}/${extensionSettings.webpackConfig.webviewJsFile}`;
-    webviewStyleUri = `${server}/${extensionSettings.webpackConfig.webviewCssFile}`;
-    globalsScriptUri = `${server}/${extensionSettings.webpackConfig.globalJsFile}`;
+    webviewScriptUri = `${server}/${webpackConfig.webviewJsFile}`;
+    webviewStyleUri = `${server}/${webpackConfig.webviewCssFile}`;
+    globalsScriptUri = `${server}/${webpackConfig.globalJsFile}`;
   } else {
     webviewScriptUri = weatherManPanel.webview.asWebviewUri(
-      vscode.Uri.file(
-        path.join(
-          context.extensionPath,
-          extensionSettings.webpackConfig.outputDir,
-          extensionSettings.webpackConfig.webviewJsFile
-        )
-      )
+      vscode.Uri.file(path.join(outputPath, webpackConfig.webviewJsFile))
     );
     globalsScriptUri = weatherManPanel.webview.asWebviewUri(
-      vscode.Uri.file(
-        path.join(
-          context.extensionPath,
-          extensionSettings.webpackConfig.outputDir,
-          extensionSettings.webpackConfig.globalJsFile
-        )
-      )
+      vscode.Uri.file(path.join(outputPath, webpackConfig.globalJsFile))
     );
     webviewStyleUri = weatherManPanel.webview.asWebviewUri(
-      vscode.Uri.file(
-        path.join(
-          context.extensionPath,
-          extensionSettings.webpackConfig.outputDir,
-          extensionSettings.webpackConfig.webviewCssFile
-        )
-      )
+      vscode.Uri.file(path.join(outputPath, webpackConfig.webviewCssFile))
     );
   }
   const htmlTemplateOnDisk = vscode.Uri.file(
-    path.join(
-      context.extensionPath,
-      extensionSettings.webpackConfig.outputDir,
-      extensionSettings.webpackConfig.htmlFile
-    )
+    path.join(outputPath, webpackConfig.htmlFile)
   );
   let htmlTemplate = fs.readFileSync(htmlTemplateOnDisk.fsPath).toString();
   htmlTemplate = htmlTemplate
-    .replace(
-      extensionSettings.webpackConfig.webviewCssFile,
-      webviewStyleUri.toString()
-    )
-    .replace(
-      extensionSettings.webpackConfig.webviewJsFile,
-      webviewScriptUri.toString()
-    )
-    .replace(
-      extensionSettings.webpackConfig.globalJsFile,
-      globalsScriptUri.toString()
-    );
+    .replace(webpackConfig.webviewCssFile, webviewStyleUri.toString())
+    .replace(webpackConfig.webviewJsFile, webviewScriptUri.toString())
+    .replace(webpackConfig.globalJsFile, globalsScriptUri.toString());
   return htmlTemplate;
 };
 
 const activate = (context) => {
+  const { webpackConfig, services } = extensionSettings;
   let disposable = vscode.commands.registerCommand(
     extensionSettings.invocationCmd,
     () => {
@@ -202,10 +181,7 @@ const activate = (context) => {
           retainContextWhenHidden: true,
           localResourceRoots: [
             vscode.Uri.file(
-              path.join(
-                context.extensionPath,
-                extensionSettings.webpackConfig.outputDir
-              )
+              path.join(context.extensionPath, webpackConfig.outputDir)
             ),
           ],
         }
@@ -213,8 +189,8 @@ const activate = (context) => {
       weatherManPanel.iconPath = vscode.Uri.file(
         path.join(
           context.extensionPath,
-          extensionSettings.webpackConfig.outputDir,
-          extensionSettings.webpackConfig.weatherManIcon
+          webpackConfig.outputDir,
+          webpackConfig.weatherManIcon
         )
       );
 
@@ -240,16 +216,22 @@ const activate = (context) => {
       updateWebview();
 
       // And schedule updates to the content every second
-      let interval = setInterval(updateWebview, 1000);
+      let updateWebviewInterval = setInterval(
+        updateWebview,
+        services.updateWebviewFreqinMs
+      );
 
       weatherManPanel.webview.onDidReceiveMessage(
         (message) => {
           switch (message.command) {
             case "recieved_data":
               // cancel any future updates when webview recieves the data
-              clearInterval(interval);
+              clearInterval(updateWebviewInterval);
               // schedule updates to webview
-              interval = setInterval(publishWeatherUpdates, 3600000)
+              updateWebviewInterval = setInterval(
+                publishWeatherUpdates,
+                HrstoMs(services.publishUpdateToWebviewFreqinHrs)
+              );
               return;
           }
         },
@@ -260,8 +242,8 @@ const activate = (context) => {
       weatherManPanel.onDidDispose(
         () => {
           // When the panel is closed, cancel any future updates to the webview content
-          if(interval) {
-            clearInterval(interval);
+          if (updateWebviewInterval) {
+            clearInterval(updateWebviewInterval);
           }
         },
         null,
@@ -270,16 +252,26 @@ const activate = (context) => {
     }
   );
   activateWeatherMan();
-  loadData(context);
-  loadDataInterval = setInterval(() => loadData(context), 5000);
+  fetchData(context);
+  updateStatusBarInterval = setInterval(
+    () => updateStatusBar(),
+    services.statusBarUpdateFreqinMs
+  );
+  fetchDataInterval = setInterval(
+    () => fetchData(context),
+    HrstoMs(services.dataUpdateFreqInHrs)
+  );
   context.subscriptions.push(disposable);
-}
+};
 
 const deactivate = () => {
-  if(loadDataInterval) {
-    clearInterval(loadDataInterval);
+  if (updateStatusBarInterval) {
+    clearInterval(updateStatusBarInterval);
   }
-}
+  if (fetchDataInterval) {
+    clearInterval(fetchDataInterval);
+  }
+};
 
 module.exports = {
   activate,

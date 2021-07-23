@@ -13,3 +13,9 @@ All notable changes to the WeatherMan extension will be documented in this file.
 ## [1.0.2]
 
 - Fix webview update frequency
+
+## [1.0.3]
+
+- Fix tooltip issue
+- Change weather update algorithm
+- Code cleanup

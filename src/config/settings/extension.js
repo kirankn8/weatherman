@@ -17,12 +17,17 @@ export const extensionSettings = {
     developmentServer: "http://localhost:8080",
   },
   storage: {
+    ipAddress: "ipAddress",
     weeklyForecast: "weeklyForecast",
     dailyForecast: "dailyForecast",
     location: "location",
   },
   services: {
-    updateFrequencyInHrs: 3,
+    dataUpdateFreqInHrs: 3,
+    ipAddrUpdateFreqInHrs: 24,
+    statusBarUpdateFreqinMs: 5000,
+    publishUpdateToWebviewFreqinHrs: 1,
+    updateWebviewFreqinMs: 1000,
     retryStrategy: {
       numberOfRetries: 3,
       initalInterval: 100,

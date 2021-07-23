@@ -30,7 +30,7 @@ const App = () => {
         filter((event) => Boolean(event["data"])),
         filter((event) => Boolean(event["data"]["geoLocation"])),
         map((event) => event["data"]),
-        filter((data) => !Object.values(data).some((element) => !element)),
+        filter((data) => !Object.values(data).some((element) => !element))
       )
       .subscribe(
         ({ dailyForecast: df, weeklyForecast: wf, geoLocation: gl }) => {

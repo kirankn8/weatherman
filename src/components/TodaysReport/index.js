@@ -27,7 +27,7 @@ const TodaysReport = ({ dailyForecast, geolocation, time }) => {
           )}
 
           <div className="weather-properties">
-            <span className="weather-properties-title">Time:</span>
+            <span className="weather-properties-title">Time: </span>
             <span className="weather-properties-info">
               {new Date(time).toLocaleString()}
             </span>

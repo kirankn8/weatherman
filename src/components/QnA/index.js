@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import "./index.css";
 import { weather } from "../../services";
+import "./index.css";
 
 const QnA = ({ dailyForecast }) => {
   const qa = weather.isUmbrellaRequired(dailyForecast);
