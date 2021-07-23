@@ -218,11 +218,7 @@ function activate(context) {
         )
       );
 
-      const updateWebview = () => {
-        weatherManPanel.webview.html = getWebviewContent(
-          context,
-          weatherManPanel
-        );
+      const publishWeatherUpdates = () => {
         weatherManPanel.webview
           .postMessage({
             weeklyForecast,
@@ -232,11 +228,19 @@ function activate(context) {
           .then();
       };
 
+      const updateWebview = () => {
+        weatherManPanel.webview.html = getWebviewContent(
+          context,
+          weatherManPanel
+        );
+        publishWeatherUpdates();
+      };
+
       // Set initial content
       updateWebview();
 
       // And schedule updates to the content every second
-      const interval = setInterval(updateWebview, 1000);
+      let interval = setInterval(updateWebview, 1000);
 
       weatherManPanel.webview.onDidReceiveMessage(
         (message) => {
@@ -244,6 +248,8 @@ function activate(context) {
             case "recieved_data":
               // cancel any future updates when webview recieves the data
               clearInterval(interval);
+              // schedule updates to webview
+              interval = setInterval(publishWeatherUpdates, 3600000)
               return;
           }
         },
@@ -254,7 +260,9 @@ function activate(context) {
       weatherManPanel.onDidDispose(
         () => {
           // When the panel is closed, cancel any future updates to the webview content
-          clearInterval(interval);
+          if(interval) {
+            clearInterval(interval);
+          }
         },
         null,
         context.subscriptions
